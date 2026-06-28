@@ -1,4 +1,4 @@
-name: Build ReSukiSU Docker Kernel
+name: Build ReSukiSU Docker test Kernel
 
 on:
   workflow_dispatch:
