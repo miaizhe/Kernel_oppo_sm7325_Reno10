@@ -132,6 +132,9 @@ jobs:
           ./scripts/config --file out/.config --enable CONFIG_CFS_BANDWIDTH
           ./scripts/config --file out/.config --enable CONFIG_FAIR_GROUP_SCHED
           ./scripts/config --file out/.config --enable CONFIG_RT_GROUP_SCHED
+
+          ./scripts/config --file out/.config --enable CONFIG_VIRTUALIZATION
+          ./scripts/config --file out/.config --enable CONFIG_KVM
           make O=out CC="clang" LLVM=1 -j$(nproc)
       - name: Package with AnyKernel3
         run: |
