@@ -389,6 +389,7 @@ static struct binder_buffer *binder_alloc_new_buf_locked(
 				int is_async,
 				int pid)
 {
+    struct task_struct *proc_task = NULL;
 	struct rb_node *n = alloc->free_buffers.rb_node;
 	struct binder_buffer *buffer;
 	size_t buffer_size;
