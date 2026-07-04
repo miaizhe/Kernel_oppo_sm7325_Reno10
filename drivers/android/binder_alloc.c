@@ -29,6 +29,8 @@
 #include <linux/hans.h>
 #endif /*OPLUS_FEATURE_HANS_FREEZE*/
 
+#include "../drivers/rekernel/rekernel.h"
+
 struct list_lru binder_alloc_lru;
 
 static DEFINE_MUTEX(binder_alloc_mmap_lock);

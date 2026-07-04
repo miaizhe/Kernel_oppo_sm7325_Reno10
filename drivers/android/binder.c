@@ -95,6 +95,8 @@
 #include <linux/sched_info/osi_tasktrack.h>
 #endif
 
+#include "../drivers/rekernel/rekernel.h"
+
 static HLIST_HEAD(binder_deferred_list);
 static DEFINE_MUTEX(binder_deferred_lock);
 
