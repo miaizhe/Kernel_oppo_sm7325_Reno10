@@ -47,6 +47,7 @@
 #include <linux/cgroup.h>
 #include <linux/audit.h>
 #include <linux/oom.h>
+#include "../drivers/rekernel/rekernel.h"
 
 #define CREATE_TRACE_POINTS
 #include <trace/events/signal.h>
