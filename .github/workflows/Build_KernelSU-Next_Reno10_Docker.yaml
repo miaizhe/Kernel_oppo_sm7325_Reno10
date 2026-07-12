@@ -87,24 +87,10 @@ jobs:
           curl -LSs https://github.com/miaizhe/Kernel_oppo_sm7325_Reno10/releases/download/boot/user.h -o include/linux/sched/user.h
           patch -p1 < 001.GKI-below-6.12-fix_sysvipc_kabi_3_4_5.patch
           echo "添加docker补丁完成"
-          curl -LSs "https://raw.githubusercontent.com/rifsxd/KernelSU-Next/next/kernel/setup.sh" | bash -
+          curl -LSs "https://raw.githubusercontent.com/rifsxd/KernelSU-Next/next/kernel/setup.sh" | bash -s legacy
           curl -LSs "https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Build_2nd/mainline/Patches/syscall_hook_patches.sh" -o syscall_hook_patches.sh
           chmod +x syscall_hook_patches.sh
           bash syscall_hook_patches.sh
-          sed -i 's|<linux/pgtable.h>|<asm/pgtable.h>|g' drivers/kernelsu/feature/sucompat.c
-          sed -i 's/strncpy_from_user_nofault/probe_user_read_str/g' drivers/kernelsu/feature/sucompat.c
-          sed -i 's/probe_user_read_str/strncpy_from_user/g' drivers/kernelsu/feature/sucompat.c
-          sed -i 's/copy_to_kernel_nofault/probe_kernel_write/g' drivers/kernelsu/hook/arm64/patch_memory.c
-          sed -i 's/error = security_inode_init_security_anon(inode, \&qname, context_inode);/error = 0;/g' drivers/kernelsu/infra/file_wrapper.c
-          sed -i '2i #ifndef SECCOMP_ARCH_NATIVE_NR\n#define SECCOMP_ARCH_NATIVE_NR 512\n#endif' drivers/kernelsu/infra/seccomp_cache.c
-          sed -i 's/\.handle_inode_event = ksu_handle_inode_event,/\/\/ \.handle_inode_event = ksu_handle_inode_event,/g' drivers/kernelsu/manager/pkg_observer.c
-          sed -i '2i #include <linux/sched/task.h>' drivers/kernelsu/policy/allowlist.c
-          sed -i 's/TWA_RESUME/true/g' drivers/kernelsu/policy/allowlist.c
-          sed -i 's/strncpy_from_user_nofault/strncpy_from_user/g' drivers/kernelsu/runtime/ksud_integration.c
-          sed -i 's/copy_from_user_nofault/probe_user_read/g' drivers/kernelsu/runtime/ksud_integration.c
-          sed -i 's/copy_to_user_nofault/probe_user_write/g' drivers/kernelsu/runtime/ksud_integration.c
-          sed -i 's/selinux_state\.policy_mutex/\&policy_mutex/g' drivers/kernelsu/selinux/rules.c
-          sed -i 's/selinux_state\.policy/selinux_policy/g' drivers/kernelsu/selinux/rules.c
           
 
           make O=out CC="clang" LLVM=1 Reno10-Docker_defconfig
