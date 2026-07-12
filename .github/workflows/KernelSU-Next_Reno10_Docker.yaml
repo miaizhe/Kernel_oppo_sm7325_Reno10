@@ -169,7 +169,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.BUILD_DATE }}
-          name: ReSukiSU Kernel for Reno10 (${{ env.BUILD_DATE }})
+          name: KernelSU Kernel for Reno10 (${{ env.BUILD_DATE }})
           body: |
             - 编译日期: ${{ env.BUILD_DATE }}
             - 核心版本: 5.4.254
