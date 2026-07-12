@@ -2,7 +2,7 @@
 VERSION = 5
 PATCHLEVEL = 4
 SUBLEVEL = 254
-EXTRAVERSION = -ReSukiSU-LXC/Docker
+EXTRAVERSION = -KernelSU-LXC/Docker
 NAME = Kleptomaniac Octopus
 
 # indicate that change "Kbuild: Support nested composite objects" is
