@@ -127,11 +127,11 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.BUILD_DATE }}
-          name: ReSukiSU Kernel for Reno10 (${{ env.BUILD_DATE }})
+          name: KernelSU Kernel for Reno10 (${{ env.BUILD_DATE }})
           body: |
             - 编译日期: ${{ env.BUILD_DATE }}
             - 核心版本: 5.4.254
-            - 包含功能: ReSukiSU
+            - 包含功能: ReSukiSU,KernelSU-Next
             - 欢迎刷入芜夕wuxi的内核！祝你玩的愉快！
             - 文件：分为带SuSFS的和不带SukiSU的，zip为ak3包，img文件为打包好的镜像，Docker为带Docker的
           files: |
