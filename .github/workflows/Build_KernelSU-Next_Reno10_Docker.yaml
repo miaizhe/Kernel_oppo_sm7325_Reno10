@@ -91,10 +91,8 @@ jobs:
           curl -LSs "https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Build_2nd/mainline/Patches/syscall_hook_patches.sh" -o syscall_hook_patches.sh
           chmod +x syscall_hook_patches.sh
           bash syscall_hook_patches.sh
-          
-
-          make O=out CC="clang" LLVM=1 Reno10-Docker_defconfig
-          
+          sed -i '/ksu_handle_devpts/d' drivers/tty/pty.c
+          make O=out CC="clang" LLVM=1 Reno10-Docker_defconfig  
           ./scripts/config --file out/.config \
             -d CONFIG_KSU_TRACEPOINT_HOOK \
             -e CONFIG_KSU_MANUAL_HOOK
@@ -105,14 +103,9 @@ jobs:
             -e CONFIG_IPC_NS \
             -e CONFIG_CHECKPOINT_RESTORE \
             -e CONFIG_SYSVIPC \
-            -e CONFIG_CGROUP_CPU=y \
-            -e CONFIG_CGROUP_CPUACCT=y \
-            -e CONFIG_CPUSETS=y \
-            -e CONFIG_CGROUP_PIDS=y \
-            -e CONFIG_MEMCG=y \
-            -e CONFIG_CGROUP_DEVICE=y \
-            -e CONFIG_CGROUP_FREEZER=y \
-            -e CONFIG_CGROUP_SCHED=y 
+            -e CONFIG_KPROBES \
+            -e CONFIG_HAVE_KPROBES \
+            -e CONFIG_KPROBE_EVENTS
           # ==========================================
           ./scripts/config --file out/.config --enable CONFIG_CGROUP_PIDS
           ./scripts/config --file out/.config --enable CONFIG_CGROUP_IO
