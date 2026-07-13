@@ -94,6 +94,10 @@ jobs:
           curl -LSs "https://raw.githubusercontent.com/oppo-source/android_kernel_oppo_sm7325/refs/heads/oppo/sm7325_v_15.0.0_reno10/fs/read_write.c" -o fs/read_write.c
           rm drivers/tty/pty.c
           curl -LSs "https://raw.githubusercontent.com/oppo-source/android_kernel_oppo_sm7325/refs/heads/oppo/sm7325_v_15.0.0_reno10/drivers/tty/pty.c" -o drivers/tty/pty.c
+          rm drivers/input/input.c
+          curl -LSs "https://raw.githubusercontent.com/oppo-source/android_kernel_oppo_sm7325/refs/heads/oppo/sm7325_v_15.0.0_reno10/drivers/input/input.c" -o drivers/input/input.c
+          rm include/linux/compiler.h
+          curl -LSs "https://raw.githubusercontent.com/oppo-source/android_kernel_oppo_sm7325/refs/heads/oppo/sm7325_v_15.0.0_reno10/include/linux/compiler.h" -o include/linux/compiler.h
           make O=out CC="clang" LLVM=1 Reno10-Docker_defconfig
           # ==== Enable namespaces for Droidspaces ====
           ./scripts/config --file out/.config \
