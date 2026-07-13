@@ -103,6 +103,7 @@ jobs:
           find drivers/kernelsu/ -type f \( -name "*.c" -o -name "*.h" \) -exec sed -i 's/copy_to_kernel_nofault/probe_kernel_write/g' {} +
           find drivers/kernelsu/ -type f \( -name "*.c" -o -name "*.h" \) -exec sed -i 's/copy_from_kernel_nofault/probe_kernel_read/g' {} +
           sed -i 's/error = security_inode_init_security_anon(inode, \&qname, context_inode);/error = 0;/g' drivers/kernelsu/infra/file_wrapper.c
+          sed -i 's/SECCOMP_ARCH_NATIVE_NR/450/g' drivers/kernelsu/infra/seccomp_cache.c
           make O=out CC="clang" LLVM=1 Reno10-Docker_defconfig
           # ==== Enable namespaces for Droidspaces ====
           ./scripts/config --file out/.config \
