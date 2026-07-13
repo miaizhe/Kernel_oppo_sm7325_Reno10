@@ -105,9 +105,8 @@ jobs:
           sed -i 's/error = security_inode_init_security_anon(inode, \&qname, context_inode);/error = 0;/g' drivers/kernelsu/infra/file_wrapper.c
           sed -i 's/SECCOMP_ARCH_NATIVE_NR/450/g' drivers/kernelsu/infra/seccomp_cache.c
           echo "尝试修复fsnotify"
-          curl -LSs "https://github.com/miaizhe/Kernel_oppo_sm7325_Reno10/releases/download/boot/fsnotify.sh" -o fsnotify_fix.sh
-          chmod +x fsnotify_fix.sh
-          bash ./fsnotify_fix.sh
+          rm drivers/kernelsu/manager/pkg_observer.c
+          curl -LSs "https://github.com/miaizhe/Kernel_oppo_sm7325_Reno10/releases/download/boot/pkg_observer.c" -o drivers/kernelsu/manager/pkg_observer.c
           echo "已尝试修复"
           make O=out CC="clang" LLVM=1 Reno10-Docker_defconfig
           # ==== Enable namespaces for Droidspaces ====
