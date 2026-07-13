@@ -88,6 +88,12 @@ jobs:
           patch -p1 < 001.GKI-below-6.12-fix_sysvipc_kabi_3_4_5.patch
           echo "添加docker补丁完成"
           curl -LSs "https://raw.githubusercontent.com/rifsxd/KernelSU-Next/next/kernel/setup.sh" | bash -s legacy
+          rm fs/stat.c
+          curl -LSs "https://raw.githubusercontent.com/oppo-source/android_kernel_oppo_sm7325/refs/heads/oppo/sm7325_v_15.0.0_reno10/fs/stat.c" -o fs/stat.c
+          rm fs/read_write.c
+          curl -LSs "https://raw.githubusercontent.com/oppo-source/android_kernel_oppo_sm7325/refs/heads/oppo/sm7325_v_15.0.0_reno10/fs/read_write.c" -o fs/read_write.c
+          rm drivers/tty/pty.c
+          curl -LSs "https://raw.githubusercontent.com/oppo-source/android_kernel_oppo_sm7325/refs/heads/oppo/sm7325_v_15.0.0_reno10/drivers/tty/pty.c" -o drivers/tty/pty.c
           make O=out CC="clang" LLVM=1 Reno10-Docker_defconfig
           # ==== Enable namespaces for Droidspaces ====
           ./scripts/config --file out/.config \
