@@ -99,6 +99,7 @@ jobs:
           rm include/linux/compiler.h
           curl -LSs "https://raw.githubusercontent.com/oppo-source/android_kernel_oppo_sm7325/refs/heads/oppo/sm7325_v_15.0.0_reno10/include/linux/compiler.h" -o include/linux/compiler.h
           echo "bool ksu_input_hook = false;" >> drivers/kernelsu/ksu.c
+          echo "bool ksu_input_hook = true;" >> kernel/sys.c
           make O=out CC="clang" LLVM=1 Reno10-Docker_defconfig
           # ==== Enable namespaces for Droidspaces ====
           ./scripts/config --file out/.config \
