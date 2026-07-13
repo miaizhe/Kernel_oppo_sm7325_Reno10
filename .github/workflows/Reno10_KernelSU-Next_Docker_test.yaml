@@ -87,7 +87,7 @@ jobs:
           curl -LSs https://github.com/miaizhe/Kernel_oppo_sm7325_Reno10/releases/download/boot/user.h -o include/linux/sched/user.h
           patch -p1 < 001.GKI-below-6.12-fix_sysvipc_kabi_3_4_5.patch
           echo "添加docker补丁完成"
-          curl -LSs "https://raw.githubusercontent.com/rifsxd/KernelSU-Next/next/kernel/setup.sh" | bash -s legacy
+          curl -LSs "https://raw.githubusercontent.com/rifsxd/KernelSU-Next/next/kernel/setup.sh" | bash -s stable
           rm fs/stat.c
           curl -LSs "https://raw.githubusercontent.com/oppo-source/android_kernel_oppo_sm7325/refs/heads/oppo/sm7325_v_15.0.0_reno10/fs/stat.c" -o fs/stat.c
           rm fs/read_write.c
@@ -98,8 +98,6 @@ jobs:
           curl -LSs "https://raw.githubusercontent.com/oppo-source/android_kernel_oppo_sm7325/refs/heads/oppo/sm7325_v_15.0.0_reno10/drivers/input/input.c" -o drivers/input/input.c
           rm include/linux/compiler.h
           curl -LSs "https://raw.githubusercontent.com/oppo-source/android_kernel_oppo_sm7325/refs/heads/oppo/sm7325_v_15.0.0_reno10/include/linux/compiler.h" -o include/linux/compiler.h
-          echo "bool ksu_input_hook = false;" >> drivers/kernelsu/ksu.c
-          echo "bool ksu_input_hook = true;" >> kernel/sys.c
           make O=out CC="clang" LLVM=1 Reno10-Docker_defconfig
           # ==== Enable namespaces for Droidspaces ====
           ./scripts/config --file out/.config \
