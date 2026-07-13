@@ -121,6 +121,7 @@ jobs:
           ./scripts/config --file out/.config --enable CONFIG_OVERLAY_FS
           ./scripts/config --file out/.config -m CONFIG_KSU
           sed -i 's/preempt_enable_no_resched_notrace/preempt_enable_notrace/g' drivers/kernelsu/feature/sucompat.c
+          find drivers/kernelsu/ -type f \( -name "*.c" -o -name "*.h" \) -exec sed -i 's/preempt_enable_no_resched_notrace/preempt_enable_notrace/g' {} +
           make O=out CC="clang" LLVM=1 -j$(nproc)
       - name: Package with AnyKernel3
         run: |
