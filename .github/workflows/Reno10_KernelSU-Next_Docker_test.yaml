@@ -99,6 +99,7 @@ jobs:
           rm include/linux/compiler.h
           curl -LSs "https://raw.githubusercontent.com/oppo-source/android_kernel_oppo_sm7325/refs/heads/oppo/sm7325_v_15.0.0_reno10/include/linux/compiler.h" -o include/linux/compiler.h
           sed -i 's/<linux\/pgtable.h>/<asm\/pgtable.h>/g' drivers/kernelsu/feature/sucompat.c
+          find drivers/kernelsu/ -type f \( -name "*.c" -o -name "*.h" \) -exec sed -i 's/strncpy_from_user_nofault/strncpy_from_user/g' {} +
           make O=out CC="clang" LLVM=1 Reno10-Docker_defconfig
           # ==== Enable namespaces for Droidspaces ====
           ./scripts/config --file out/.config \
