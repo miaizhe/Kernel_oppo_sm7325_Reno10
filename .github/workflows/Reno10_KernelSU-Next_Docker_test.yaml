@@ -88,8 +88,8 @@ jobs:
           patch -p1 < 001.GKI-below-6.12-fix_sysvipc_kabi_3_4_5.patch
           echo "添加docker补丁完成"
           curl -LSs "https://raw.githubusercontent.com/rifsxd/KernelSU-Next/next/kernel/setup.sh" | bash -s stable
-          rm drivers/kernelsu/hook/patch_memory.c
-          curl -LSs "https://github.com/miaizhe/Kernel_oppo_sm7325_Reno10/releases/download/boot/patch_memory.c" -o drivers/kernelsu/hook/patch_memory.c
+          rm drivers/kernelsu/hook/arm64/patch_memory.c
+          curl -LSs "https://github.com/miaizhe/Kernel_oppo_sm7325_Reno10/releases/download/boot/patch_memory.c" -o drivers/kernelsu/hook/arm64/patch_memory.c
           rm drivers/kernelsu/policy/app_profile.c
           curl -LSs "https://github.com/miaizhe/Kernel_oppo_sm7325_Reno10/releases/download/boot/app_profile.c" -o drivers/kernelsu/policy/app_profile.c
           rm fs/stat.c
