@@ -117,6 +117,7 @@ jobs:
           curl -LSs "https://github.com/miaizhe/Kernel_oppo_sm7325_Reno10/releases/download/boot/rules.c" -o drivers/kernelsu/selinux/rules.c
           rm drivers/kernelsu/selinux/sepolicy.c
           curl -LSs "https://github.com/miaizhe/Kernel_oppo_sm7325_Reno10/releases/download/boot/sepolicy.c" -o drivers/kernelsu/selinux/sepolicy.c
+          sed -i 's/<linux\/minmax.h>/<linux\/kernel.h>/g' drivers/kernelsu/sulog/event.c
           make O=out CC="clang" LLVM=1 Reno10-Docker_defconfig
           # ==== Enable namespaces for Droidspaces ====
           ./scripts/config --file out/.config \
