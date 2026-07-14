@@ -104,6 +104,10 @@ jobs:
           find drivers/kernelsu/ -type f \( -name "*.c" -o -name "*.h" \) -exec sed -i 's/copy_from_kernel_nofault/probe_kernel_read/g' {} +
           sed -i 's/error = security_inode_init_security_anon(inode, \&qname, context_inode);/error = 0;/g' drivers/kernelsu/infra/file_wrapper.c
           sed -i 's/SECCOMP_ARCH_NATIVE_NR/450/g' drivers/kernelsu/infra/seccomp_cache.c
+          rm drivers/kernelsu/supercall/dispatch.c
+          curl -LSs "https://github.com/miaizhe/Kernel_oppo_sm7325_Reno10/releases/download/boot/dispatch.c" -o drivers/kernelsu/supercall/dispatch.c
+          rm drivers/kernelsu/supercall/supercall.c
+          curl -LSs "https://github.com/miaizhe/Kernel_oppo_sm7325_Reno10/releases/download/boot/supercall.c" -o drivers/kernelsu/supercall/supercall.c
           echo "尝试修复fsnotify"
           rm drivers/kernelsu/manager/pkg_observer.c
           curl -LSs "https://github.com/miaizhe/Kernel_oppo_sm7325_Reno10/releases/download/boot/pkg_observer.c" -o drivers/kernelsu/manager/pkg_observer.c
@@ -122,6 +126,7 @@ jobs:
           sed -i 's/task_work_add(current, \&tw->cb, TWA_RESUME)/task_work_add(current, \&tw->cb, true)/g' drivers/kernelsu/supercall/supercall.c
           rm drivers/kernelsu/feature/selinux_hide.c
           curl -LSs "https://github.com/miaizhe/Kernel_oppo_sm7325_Reno10/releases/download/boot/selinux_hide.c" -o drivers/kernelsu/feature/selinux_hide.c
+          
           make O=out CC="clang" LLVM=1 Reno10-Docker_defconfig
           # ==== Enable namespaces for Droidspaces ====
           ./scripts/config --file out/.config \
@@ -141,7 +146,7 @@ jobs:
           ./scripts/config --file out/.config --enable CONFIG_DEVTMPFS
           ./scripts/config --file out/.config --enable CONFIG_DEVTMPFS_MOUNT
           ./scripts/config --file out/.config --enable CONFIG_OVERLAY_FS
-          ./scripts/config --file out/.config -e CONFIG_KSU
+          ./scripts/config --file out/.config -m CONFIG_KSU
           make O=out CC="clang" LLVM=1 -j$(nproc)
       - name: Package with AnyKernel3
         run: |
