@@ -110,6 +110,7 @@ jobs:
           echo "已尝试修复"
           sed -i '2i #include <linux/sched/task.h>' drivers/kernelsu/policy/allowlist.c
           sed -i 's/task_work_add(tsk, cb, TWA_RESUME)/task_work_add(tsk, cb, true)/g' drivers/kernelsu/policy/allowlist.c
+          sed -i 's/atomic_set(&current->seccomp.filter_count, 0);/\/\/ atomic_set(\&current->seccomp.filter_count, 0);/g' drivers/kernelsu/policy/app_profile.c
           make O=out CC="clang" LLVM=1 Reno10-Docker_defconfig
           # ==== Enable namespaces for Droidspaces ====
           ./scripts/config --file out/.config \
