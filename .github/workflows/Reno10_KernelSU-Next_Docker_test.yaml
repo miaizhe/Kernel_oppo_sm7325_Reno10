@@ -111,6 +111,8 @@ jobs:
           sed -i '2i #include <linux/sched/task.h>' drivers/kernelsu/policy/allowlist.c
           sed -i 's/task_work_add(tsk, cb, TWA_RESUME)/task_work_add(tsk, cb, true)/g' drivers/kernelsu/policy/allowlist.c
           sed -i 's/atomic_set(&current->seccomp.filter_count, 0);/\/\/ atomic_set(\&current->seccomp.filter_count, 0);/g' drivers/kernelsu/policy/app_profile.c
+          sed -i 's/copy_from_user_nofault/probe_user_read/g' drivers/kernelsu/runtime/ksud_integration.c
+          sed -i 's/copy_to_user_nofault/probe_user_write/g' drivers/kernelsu/runtime/ksud_integration.c
           make O=out CC="clang" LLVM=1 Reno10-Docker_defconfig
           # ==== Enable namespaces for Droidspaces ====
           ./scripts/config --file out/.config \
