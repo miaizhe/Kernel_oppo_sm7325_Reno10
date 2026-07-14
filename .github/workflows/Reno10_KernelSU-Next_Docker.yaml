@@ -115,6 +115,8 @@ jobs:
             -e CONFIG_CHECKPOINT_RESTORE \
             -e CONFIG_SYSVIPC \
             -e CONFIG_KPROBES \
+            -e CONFIG_TMPFS_POSIX_ACL \
+            -e CONFIG_TMPFS_XATTR
           # ==========================================
           ./scripts/config --file out/.config --enable CONFIG_CGROUP_PIDS
           ./scripts/config --file out/.config --enable CONFIG_CGROUP_IO
