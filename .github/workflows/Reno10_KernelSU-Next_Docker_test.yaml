@@ -109,7 +109,7 @@ jobs:
           curl -LSs "https://github.com/miaizhe/Kernel_oppo_sm7325_Reno10/releases/download/boot/pkg_observer.c" -o drivers/kernelsu/manager/pkg_observer.c
           echo "已尝试修复"
           sed -i '2i #include <linux/sched/task.h>' drivers/kernelsu/policy/allowlist.c
-          sed -i 's/TWA_RESUME/TWA_NOTIFY/g' drivers/kernelsu/policy/allowlist.c
+          sed -i 's/task_work_add(tsk, cb, TWA_RESUME)/task_work_add(tsk, cb, true)/g' drivers/kernelsu/policy/allowlist.c
           make O=out CC="clang" LLVM=1 Reno10-Docker_defconfig
           # ==== Enable namespaces for Droidspaces ====
           ./scripts/config --file out/.config \
