@@ -116,12 +116,17 @@ jobs:
           pwd
           cd ..
           pwd
+      - name: Test CVE-2026-43499
+        run: |
+          cp ./kernel/msm-5.4/out/vmlinux ./CVE-2026-43499-vmlinux
           
       - name: Upload Flashable Kernel
         uses: actions/upload-artifact@v6
         with:
           name: ReSukiSU_Reno10_Flashable
-          path: ReSukiSU-Reno10-Kernel.zip
+          path: |
+            ReSukiSU-Reno10-Kernel.zip
+            CVE-2026-43499-vmlinux
 
       - name: Upload Release
         uses: softprops/action-gh-release@v2
