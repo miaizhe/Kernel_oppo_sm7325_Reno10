@@ -109,7 +109,7 @@ jobs:
             -e CONFIG_KSU_MANUAL_HOOK
           # ==== Enable namespaces for Droidspaces ====
           ./scripts/config --file out/.config \
-            -d CONFIG_USER_NS \
+            -e CONFIG_USER_NS \
             -e CONFIG_PID_NS \
             -e CONFIG_IPC_NS \
             -e CONFIG_CHECKPOINT_RESTORE \
