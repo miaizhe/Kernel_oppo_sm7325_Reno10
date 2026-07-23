@@ -66,6 +66,9 @@ jobs:
           export ARCH="arm64"
           export SUBARCH="arm64"
           cd kernel/msm-5.4
+          rm KernelSU-Next -r
+          rm KernelSU -r
+          rm drivers/kernelsu -r
           curl -LSs "https://raw.githubusercontent.com/rifsxd/KernelSU-Next/next/kernel/setup.sh" | bash -s legacy
           make O=out CC="clang" LLVM=1 Reno10-Docker_defconfig
           ./scripts/config --file out/.config \
