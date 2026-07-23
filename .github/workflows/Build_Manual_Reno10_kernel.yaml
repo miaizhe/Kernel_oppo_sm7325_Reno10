@@ -68,15 +68,6 @@ jobs:
           curl -LSs "https://raw.githubusercontent.com/rifsxd/KernelSU-Next/next/kernel/setup.sh" | bash -s legacy
           make O=out CC="clang" LLVM=1 Reno10-Docker_defconfig
           ./scripts/config --file out/.config \
-            -e CONFIG_USER_NS \
-            -e CONFIG_PID_NS \
-            -e CONFIG_IPC_NS \
-            -e CONFIG_CHECKPOINT_RESTORE \
-            -e CONFIG_SYSVIPC \
-            -e CONFIG_KPROBES \
-            -e CONFIG_TMPFS_POSIX_ACL \
-            -e CONFIG_TMPFS_XATTR
-          ./scripts/config --file out/.config \
             -d CONFIG_KSU_TRACEPOINT_HOOK \
             -e CONFIG_KSU_MANUAL_HOOK
           sed -i '/ksu_handle_devpts/d' drivers/tty/pty.c
