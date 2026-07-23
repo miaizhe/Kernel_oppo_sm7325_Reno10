@@ -1,4 +1,4 @@
-name: Build ReSukiSU Kernel
+name: Build Manual Reno10 Kernel
 
 on:
   workflow_dispatch:
@@ -103,7 +103,7 @@ jobs:
           cd AnyKernel3
           rm anykernel.sh
           wget https://github.com/miaizhe/Kernel_oppo_sm7325_Reno10/releases/download/boot/anykernel.sh
-          zip -r9 ../ReSukiSU-Reno10-${{ env.BUILD_DATE }}.zip * -x .git* README.md *placeholder
+          zip -r9 ../KernelSU-Next-Manual-Reno10-${{ env.BUILD_DATE }}.zip * -x .git* README.md *placeholder
 
       - name: Pack Boot Image
         run: |
@@ -119,10 +119,30 @@ jobs:
             exit 1
           fi
           cp ../kernel/msm-5.4/out/arch/arm64/boot/Image kernel
-          ./magiskboot repack boot_origin.img ../boot-ReSukiSU-Reno10-${{ env.BUILD_DATE }}.img
+          ./magiskboot repack boot_origin.img ../boot-KernelSU-Next-Manual-Reno10-${{ env.BUILD_DATE }}.img
           pwd
           cd ..
           pwd
+
+      - name: Pack WithoutTWRP Boot Image
+        run: |
+          pwd
+          mkdir -p boot_pack
+          cd boot_pack
+          wget https://raw.githubusercontent.com/miaizhe/magiskboot-linux/refs/heads/main/x86_64/magiskboot
+          chmod +x magiskboot
+          curl -fL "https://github.com/miaizhe/Kernel_oppo_sm7325_Reno10/releases/download/boot/boot_a.img" -o boot_origin.img
+          ./magiskboot unpack boot_origin.img
+          if [ ! -f "../kernel/msm-5.4/out/arch/arm64/boot/Image" ]; then
+            echo "错误：编译出的 Image 文件不存在，请检查编译步骤！"
+            exit 1
+          fi
+          cp ../kernel/msm-5.4/out/arch/arm64/boot/Image kernel
+          ./magiskboot repack boot_origin.img ../boot-KernelSU_Next-Manual-Reno10-WithoutTWRP-Docker-${{ env.BUILD_DATE }}.img
+          pwd
+          cd ..
+          pwd
+          
       - name: Test CVE-2026-43499
         run: |
           cp ./kernel/msm-5.4/out/vmlinux ./CVE-2026-43499-vmlinux
@@ -132,8 +152,9 @@ jobs:
         with:
           name: ReSukiSU_Reno10_Flashable
           path: |
-            ReSukiSU-Reno10-Kernel.zip
+            KernelSU-Next-Manual-Reno10-${{ env.BUILD_DATE }}.zip
             CVE-2026-43499-vmlinux
+            boot-KernelSU_Next-Manual-Reno10-WithoutTWRP-Docker-${{ env.BUILD_DATE }}.img
 
       - name: Upload Release
         uses: softprops/action-gh-release@v2
@@ -147,7 +168,8 @@ jobs:
             - 欢迎刷入芜夕wuxi的内核！祝你玩的愉快！
             - 文件：分为带SuSFS的和不带SukiSU的，zip为ak3包，img文件为打包好的镜像，Docker为带Docker的
           files: |
-              ReSukiSU-Reno10-${{ env.BUILD_DATE }}.zip
-              boot-ReSukiSU-Reno10-${{ env.BUILD_DATE }}.img
+              KernelSU-Next-Manual-Reno10-${{ env.BUILD_DATE }}.zip
+              boot-KernelSU-Next-Manual-Reno10-${{ env.BUILD_DATE }}.img
+              boot-KernelSU_Next-Manual-Reno10-WithoutTWRP-Docker-${{ env.BUILD_DATE }}.img
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
