@@ -28,7 +28,7 @@ jobs:
           repository: miaizhe/Kernel_oppo_sm7325_Reno10
           path: kernel/msm-5.4
           fetch-depth: 1
-          ref: Manual
+          ref: test
 
       - name: Checkout Modules Source
         uses: actions/checkout@v6
