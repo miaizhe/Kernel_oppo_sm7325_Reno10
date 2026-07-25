@@ -147,26 +147,18 @@ jobs:
       - name: Upload Flashable Kernel
         uses: actions/upload-artifact@v6
         with:
-          name: ReSukiSU_Reno10_Flashable
+          name: KernelSU_Reno10_Flashable
           path: |
             KernelSU-Next-Manual-Reno10-${{ env.BUILD_DATE }}.zip
             CVE-2026-43499-vmlinux
             boot-KernelSU_Next-Manual-Reno10-WithoutTWRP-Docker-${{ env.BUILD_DATE }}.img
 
-      - name: Upload Release
-        uses: softprops/action-gh-release@v2
+      - name: Upload Flashable Kernel
+        uses: actions/upload-artifact@v6
         with:
-          tag_name: ${{ env.BUILD_DATE }}
-          name: KernelSU Kernel for Reno10 (${{ env.BUILD_DATE }})
-          body: |
-            - 编译日期: ${{ env.BUILD_DATE }}
-            - 核心版本: 5.4.254
-            - 包含功能: ReSukiSU,KernelSU-Next
-            - 欢迎刷入芜夕wuxi的内核！祝你玩的愉快！
-            - 文件：分为带SuSFS的和不带SukiSU的，zip为ak3包，img文件为打包好的镜像，Docker为带Docker的
-          files: |
-              KernelSU-Next-Manual-Reno10-${{ env.BUILD_DATE }}.zip
-              boot-KernelSU-Next-Manual-Reno10-${{ env.BUILD_DATE }}.img
-              boot-KernelSU_Next-Manual-Reno10-WithoutTWRP-Docker-${{ env.BUILD_DATE }}.img
+          name: boot-KernelSU-Next-Manual-Reno10-${{ env.BUILD_DATE }}.img
+          path: | 
+            boot-KernelSU-Next-Manual-Reno10-${{ env.BUILD_DATE }}.img
+            
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
