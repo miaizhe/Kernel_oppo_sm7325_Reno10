@@ -28,14 +28,14 @@ jobs:
           repository: miaizhe/Kernel_oppo_sm7325_Reno10
           path: kernel/msm-5.4
           fetch-depth: 1
-          ref: test
+          ref: Manual
 
       - name: Checkout Modules Source
         uses: actions/checkout@v6
         with:
-          repository: miaizhe/Reno10_devicetree_ColorOS15
+          repository: oppo-source/android_kernel_modules_and_devicetree_oppo_sm7325
           path: temp_modules
-          ref: main
+          ref: oppo/sm7325_v_15.0.0_reno10
 
       - name: Prepare Compiler
         run: |
@@ -74,8 +74,7 @@ jobs:
           ./scripts/config --file out/.config \
             -d CONFIG_KSU_TRACEPOINT_HOOK \
             -e CONFIG_KSU_MANUAL_HOOK \
-            -d CONFIG_BTRFS_FS \
-            -e CONFIG_ANON_INODES
+            -d CONFIG_BTRFS_FS
           sed -i '/ksu_handle_devpts/d' drivers/tty/pty.c
           sed -i 's/obj-$(CONFIG_KPROBES)/obj-y/g' kernel/Makefile
           cat << 'EOF' > drivers/kernelsu/feature/selinux_hide.c
