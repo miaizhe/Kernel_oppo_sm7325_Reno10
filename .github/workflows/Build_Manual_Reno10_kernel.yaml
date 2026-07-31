@@ -75,7 +75,8 @@ jobs:
             -d CONFIG_KSU_TRACEPOINT_HOOK \
             -e CONFIG_KSU_MANUAL_HOOK \
             -d CONFIG_BTRFS_FS \
-            -d CONFIG_BPF_LSM
+            -e CONFIG_BPF_LSM \
+            -e CONFIG_BOOT_KLOG
           sed -i '/ksu_handle_devpts/d' drivers/tty/pty.c
           sed -i 's/obj-$(CONFIG_KPROBES)/obj-y/g' kernel/Makefile
           cat << 'EOF' > drivers/kernelsu/feature/selinux_hide.c
