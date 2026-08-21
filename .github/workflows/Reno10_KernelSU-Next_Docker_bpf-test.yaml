@@ -1,4 +1,4 @@
-name: Build KernelSU-Next Docker Kernel
+name: Build KernelSU-Next Docker BPF Kernel
 
 on:
   workflow_dispatch:
