@@ -110,6 +110,7 @@ jobs:
             -e CONFIG_KSU_MANUAL_HOOK \
             -d CONFIG_USB_G_ANDROID \
             -e CONFIG_USB_G_SERIAL
+          ./scripts/config --module CONFIG_USB_LIBCOMPOSITE
           # ==== Enable namespaces for Droidspaces ====
           ./scripts/config --file out/.config \
             -e CONFIG_USER_NS \
