@@ -107,7 +107,9 @@ jobs:
           make O=out CC="clang" LLVM=1 Reno10-Docker_defconfig  
           ./scripts/config --file out/.config \
             -d CONFIG_KSU_TRACEPOINT_HOOK \
-            -e CONFIG_KSU_MANUAL_HOOK
+            -e CONFIG_KSU_MANUAL_HOOK \
+            -d CONFIG_USB_G_ANDROID \
+            -e CONFIG_USB_G_SERIAL
           # ==== Enable namespaces for Droidspaces ====
           ./scripts/config --file out/.config \
             -e CONFIG_USER_NS \
