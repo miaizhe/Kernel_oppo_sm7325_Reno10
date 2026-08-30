@@ -91,6 +91,7 @@ jobs:
           curl -LSs "https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Build_2nd/mainline/Patches/syscall_hook_patches.sh" -o syscall_hook_patches.sh
           chmod +x syscall_hook_patches.sh
           bash syscall_hook_patches.sh
+          make mrproper || true
           make O=out CC="clang" LLVM=1 Reno10-Docker_defconfig
           ./scripts/config --file out/.config \
             -d CONFIG_KSU_TRACEPOINT_HOOK \

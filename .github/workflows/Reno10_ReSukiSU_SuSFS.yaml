@@ -119,6 +119,7 @@ jobs:
           export SUBARCH="arm64"
           cd kernel/msm-5.4/
           pwd
+          make mrproper || true
           make O=out CC="clang" LLVM=1 Reno10_defconfig
           echo "CONFIG_KSU_KPM=y" >> out/.config
           sed -i 's/CONFIG_LOCALVERSION=.*/CONFIG_LOCALVERSION=""/' out/.config

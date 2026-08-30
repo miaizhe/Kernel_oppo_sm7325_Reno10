@@ -70,6 +70,7 @@ jobs:
           rm KernelSU -r
           rm drivers/kernelsu -r
           curl -LSs "https://raw.githubusercontent.com/rifsxd/KernelSU-Next/next/kernel/setup.sh" | bash -s legacy
+          make mrproper || true
           make O=out CC="clang" LLVM=1 Reno10-Docker_defconfig
           ./scripts/config --file out/.config \
             -d CONFIG_KSU_TRACEPOINT_HOOK \
