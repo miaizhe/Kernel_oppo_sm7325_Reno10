@@ -104,6 +104,7 @@ jobs:
           void ksu_selinux_hide_exit(void) { }
           bool ksu_selinux_hide_enable(void) { return true; }
           EOF
+          make mrproper O=out 
           make O=out CC="clang" LLVM=1 Reno10-Docker_defconfig  
           ./scripts/config --file out/.config \
             -d CONFIG_KSU_TRACEPOINT_HOOK \
