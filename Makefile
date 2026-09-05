@@ -3,7 +3,7 @@ VERSION = 5
 PATCHLEVEL = 4
 SUBLEVEL = 254
 EXTRAVERSION = -KernelSU-LXC/Docker
-NAME = Kleptomaniac Octopus
+NAME = 
 
 # indicate that change "Kbuild: Support nested composite objects" is
 # present in the kernel so that out-of-tree modules can act upon it
