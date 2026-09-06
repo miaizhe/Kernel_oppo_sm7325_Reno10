@@ -43,8 +43,7 @@ zstd_decompress-y := \
 		decompress/zstd_decompress.o \
 		decompress/zstd_decompress_block.o \
 
-# Newer zstd uses xxh64 but CONFIG_XXHASH may not be enabled.
-# Bundle a standalone copy into the compress module.
+# xxh64 is used by zstd but CONFIG_XXHASH may not be enabled.
 ifneq ($(CONFIG_XXHASH),y)
 zstd_compress-y += common/xxhash.o
 endif

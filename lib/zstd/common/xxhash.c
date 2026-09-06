@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause
 /*
  * xxh64 implementation bundled into zstd when CONFIG_XXHASH is not set.
- * Pulled from lib/xxhash.c with EXPORT_SYMBOL removed so it links
- * directly into zstd_compress / zstd_decompress / zstd_common.
+ * Pulled from lib/xxhash.c.
  */
 #include <asm/unaligned.h>
 #include <linux/string.h>
