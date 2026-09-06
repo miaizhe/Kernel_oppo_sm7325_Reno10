@@ -66,6 +66,7 @@ jobs:
           export ARCH="arm64"
           export SUBARCH="arm64"
           cd kernel/msm-5.4
+          rm -r KernelSU
           curl -LSs "https://raw.githubusercontent.com/ReSukiSU/ReSukiSU/main/kernel/setup.sh" | bash
           make O=out CC="clang" LLVM=1 Reno10-Docker_defconfig  
           ./scripts/config --file out/.config \
