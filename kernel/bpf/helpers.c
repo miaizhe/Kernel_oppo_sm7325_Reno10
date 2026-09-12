@@ -660,6 +660,307 @@ const struct bpf_func_proto bpf_this_cpu_ptr_proto = {
 	.arg1_type	= ARG_PTR_TO_PERCPU_BTF_ID,
 };
 
+/* ===== 5.15 BPF helpers backport ===== */
+
+/* BPF timer infrastructure for5.15 compatibility */
+struct bpf_timer {
+	u64 off;
+};
+
+struct bpf_timer_kern {
+	void *p;
+};
+
+BPF_CALL_0(bpf_ktime_get_coarse_ns)
+{
+	return ktime_get_coarse_ns();
+}
+
+const struct bpf_func_proto bpf_ktime_get_coarse_ns_proto = {
+	.func		= bpf_ktime_get_coarse_ns,
+	.gpl_only	= false,
+	.ret_type	= RET_INTEGER,
+};
+
+BPF_CALL_0(bpf_get_current_task_btf)
+{
+	return (unsigned long) current;
+}
+
+static const struct bpf_func_proto bpf_get_current_task_btf_proto = {
+	.func		= bpf_get_current_task_btf,
+	.gpl_only	= false,
+	.ret_type	= RET_PTR_TO_BTF_ID_OR_NULL,
+	/* ret_btf_id will be resolved by verifier at runtime */
+};
+
+BPF_CALL_4(bpf_bprm_opts_set, struct linux_binprm *, bprm, u64, flags,
+	   const char *, value, u32, size)
+{
+	if (flags)
+		return -EINVAL;
+	if (!bprm)
+		return -EINVAL;
+	if (size > PAGE_SIZE)
+		return -E2BIG;
+	/* stub: skip opts not supported on5.4 */
+	return 0;
+}
+
+static const struct bpf_func_proto bpf_bprm_opts_set_proto = {
+	.func		= bpf_bprm_opts_set,
+	.gpl_only	= false,
+	.ret_type	= RET_INTEGER,
+	.arg1_type	= ARG_PTR_TO_BTF_ID,
+	.arg2_type	= ARG_ANYTHING,
+	.arg3_type	= ARG_PTR_TO_MEM,
+	.arg4_type	= ARG_CONST_SIZE_OR_ZERO,
+};
+
+BPF_CALL_3(bpf_btf_find_by_name_kind, const char *, name, u32, name_len,
+	   u32, kind)
+{
+	return -EINVAL;
+}
+
+static const struct bpf_func_proto bpf_btf_find_by_name_kind_proto = {
+	.func		= bpf_btf_find_by_name_kind,
+	.gpl_only	= false,
+	.ret_type	= RET_INTEGER,
+	.arg1_type	= ARG_PTR_TO_MEM,
+	.arg2_type	= ARG_CONST_SIZE_OR_ZERO,
+	.arg3_type	= ARG_ANYTHING,
+};
+
+BPF_CALL_5(bpf_check_mtu, void *, ctx, u32, mtu_len,
+	   void *, args, u32, len, u64, flags)
+{
+	return -EINVAL;
+}
+
+static const struct bpf_func_proto bpf_check_mtu_proto = {
+	.func		= bpf_check_mtu,
+	.gpl_only	= false,
+	.ret_type	= RET_INTEGER,
+	.arg1_type	= ARG_PTR_TO_CTX,
+	.arg2_type	= ARG_ANYTHING,
+	.arg3_type	= ARG_PTR_TO_MEM_OR_NULL,
+	.arg4_type	= ARG_CONST_SIZE_OR_ZERO,
+	.arg5_type	= ARG_ANYTHING,
+};
+
+BPF_CALL_2(bpf_for_each_map_elem, struct bpf_map *, map, void *, callback_fn,
+	   u64, flags)
+{
+	/* stub: for_each_map_elem iterator not available on5.4 */
+	return -EINVAL;
+}
+
+static const struct bpf_func_proto bpf_for_each_map_elem_proto = {
+	.func		= bpf_for_each_map_elem,
+	.gpl_only	= false,
+	.ret_type	= RET_INTEGER,
+	.arg1_type	= ARG_CONST_MAP_PTR,
+	.arg2_type	= ARG_PTR_TO_MEM,
+	.arg3_type	= ARG_PTR_TO_MEM,
+	.arg4_type	= ARG_ANYTHING,
+	.arg5_type	= ARG_ANYTHING,
+};
+
+BPF_CALL_1(bpf_get_attach_cookie, void *, ctx)
+{
+	return 0;
+}
+
+static const struct bpf_func_proto bpf_get_attach_cookie_proto = {
+	.func		= bpf_get_attach_cookie,
+	.gpl_only	= false,
+	.ret_type	= RET_INTEGER,
+	.arg1_type	= ARG_PTR_TO_CTX,
+};
+
+BPF_CALL_1(bpf_get_func_ip, void *, ctx)
+{
+	return 0;
+}
+
+static const struct bpf_func_proto bpf_get_func_ip_proto = {
+	.func		= bpf_get_func_ip,
+	.gpl_only	= true,
+	.ret_type	= RET_INTEGER,
+	.arg1_type	= ARG_PTR_TO_CTX,
+};
+
+BPF_CALL_3(bpf_ima_inode_hash, struct inode *, inode, void *, buf, u32, size)
+{
+	return -EINVAL;
+}
+
+static const struct bpf_func_proto bpf_ima_inode_hash_proto = {
+	.func		= bpf_ima_inode_hash,
+	.gpl_only	= false,
+	.ret_type	= RET_INTEGER,
+	.arg1_type	= ARG_PTR_TO_BTF_ID,
+	.arg2_type	= ARG_PTR_TO_UNINIT_MEM,
+	.arg3_type	= ARG_CONST_SIZE_OR_ZERO,
+};
+
+BPF_CALL_5(bpf_snprintf, char *, str, u32, str_size, const char *, fmt,
+	   const void *, data, u32, data_len)
+{
+	return -EINVAL;
+}
+
+static const struct bpf_func_proto bpf_snprintf_proto = {
+	.func		= bpf_snprintf,
+	.gpl_only	= true,
+	.ret_type	= RET_INTEGER,
+	.arg1_type	= ARG_PTR_TO_MEM_OR_NULL,
+	.arg2_type	= ARG_CONST_SIZE_OR_ZERO,
+	.arg3_type	= ARG_PTR_TO_MEM,
+	.arg4_type	= ARG_PTR_TO_MEM_OR_NULL,
+	.arg5_type	= ARG_CONST_SIZE_OR_ZERO,
+};
+
+BPF_CALL_1(bpf_sock_from_file, struct file *, file)
+{
+	return (unsigned long) file->private_data;
+}
+
+static const struct bpf_func_proto bpf_sock_from_file_proto = {
+	.func		= bpf_sock_from_file,
+	.gpl_only	= false,
+	.ret_type	= RET_PTR_TO_SOCKET_OR_NULL,
+	.arg1_type	= ARG_PTR_TO_BTF_ID,
+};
+
+BPF_CALL_3(bpf_sys_bpf, int, cmd, union bpf_attr *, attr, u32, size)
+{
+	return -EINVAL;
+}
+
+static const struct bpf_func_proto bpf_sys_bpf_proto = {
+	.func		= bpf_sys_bpf,
+	.gpl_only	= false,
+	.ret_type	= RET_INTEGER,
+	.arg1_type	= ARG_ANYTHING,
+	.arg2_type	= ARG_PTR_TO_MEM,
+	.arg3_type	= ARG_CONST_SIZE,
+};
+
+BPF_CALL_1(bpf_sys_close, int, fd)
+{
+	return -EINVAL;
+}
+
+static const struct bpf_func_proto bpf_sys_close_proto = {
+	.func		= bpf_sys_close,
+	.gpl_only	= false,
+	.ret_type	= RET_INTEGER,
+	.arg1_type	= ARG_ANYTHING,
+};
+
+BPF_CALL_1(bpf_task_pt_regs, struct task_struct *, task)
+{
+	return 0;
+}
+
+static const struct bpf_func_proto bpf_task_pt_regs_proto = {
+	.func		= bpf_task_pt_regs,
+	.gpl_only	= true,
+	.ret_type	= RET_PTR_TO_MEM_OR_BTF_ID,
+	.arg1_type	= ARG_PTR_TO_BTF_ID,
+};
+
+BPF_CALL_3(bpf_task_storage_get, struct bpf_map *, map, struct task_struct *, task,
+	   void *, value, u64, flags)
+{
+	return 0;
+}
+
+static const struct bpf_func_proto bpf_task_storage_get_proto = {
+	.func		= bpf_task_storage_get,
+	.gpl_only	= false,
+	.ret_type	= RET_PTR_TO_MAP_VALUE_OR_NULL,
+	.arg1_type	= ARG_CONST_MAP_PTR,
+	.arg2_type	= ARG_PTR_TO_BTF_ID,
+	.arg3_type	= ARG_PTR_TO_MAP_VALUE,
+	.arg4_type	= ARG_ANYTHING,
+};
+
+BPF_CALL_2(bpf_task_storage_delete, struct bpf_map *, map, struct task_struct *, task)
+{
+	return -EINVAL;
+}
+
+static const struct bpf_func_proto bpf_task_storage_delete_proto = {
+	.func		= bpf_task_storage_delete,
+	.gpl_only	= false,
+	.ret_type	= RET_INTEGER,
+	.arg1_type	= ARG_CONST_MAP_PTR,
+	.arg2_type	= ARG_PTR_TO_BTF_ID,
+};
+
+/* BPF timer helpers - stub implementations for5.15 compatibility */
+
+BPF_CALL_3(bpf_timer_init, struct bpf_timer_kern *, timer, struct bpf_map *, map,
+	   clockid_t, clockid)
+{
+	return -EINVAL;
+}
+
+static const struct bpf_func_proto bpf_timer_init_proto = {
+	.func		= bpf_timer_init,
+	.gpl_only	= false,
+	.ret_type	= RET_INTEGER,
+	.arg1_type	= ARG_PTR_TO_SPIN_LOCK,
+	.arg2_type	= ARG_CONST_MAP_PTR,
+	.arg3_type	= ARG_ANYTHING,
+};
+
+BPF_CALL_3(bpf_timer_set_callback, struct bpf_timer_kern *, timer, void *, callback_fn,
+	   struct bpf_prog *, prog)
+{
+	return -EINVAL;
+}
+
+static const struct bpf_func_proto bpf_timer_set_callback_proto = {
+	.func		= bpf_timer_set_callback,
+	.gpl_only	= false,
+	.ret_type	= RET_INTEGER,
+	.arg1_type	= ARG_PTR_TO_SPIN_LOCK,
+	.arg2_type	= ARG_PTR_TO_MEM,
+	.arg3_type	= ARG_ANYTHING,
+};
+
+BPF_CALL_3(bpf_timer_start, struct bpf_timer_kern *, timer, u64, nsecs, u64, flags)
+{
+	return -EINVAL;
+}
+
+static const struct bpf_func_proto bpf_timer_start_proto = {
+	.func		= bpf_timer_start,
+	.gpl_only	= false,
+	.ret_type	= RET_INTEGER,
+	.arg1_type	= ARG_PTR_TO_SPIN_LOCK,
+	.arg2_type	= ARG_ANYTHING,
+	.arg3_type	= ARG_ANYTHING,
+};
+
+BPF_CALL_1(bpf_timer_cancel, struct bpf_timer_kern *, timer)
+{
+	return -EINVAL;
+}
+
+static const struct bpf_func_proto bpf_timer_cancel_proto = {
+	.func		= bpf_timer_cancel,
+	.gpl_only	= false,
+	.ret_type	= RET_INTEGER,
+	.arg1_type	= ARG_PTR_TO_SPIN_LOCK,
+};
+
+/* ===== End 5.15 BPF helpers backport ===== */
+
 const struct bpf_func_proto bpf_get_current_task_proto __weak;
 const struct bpf_func_proto bpf_probe_read_user_proto __weak;
 const struct bpf_func_proto bpf_probe_read_user_str_proto __weak;
@@ -704,6 +1005,10 @@ bpf_base_func_proto(enum bpf_func_id func_id)
 		return &bpf_ringbuf_discard_proto;
 	case BPF_FUNC_ringbuf_query:
 		return &bpf_ringbuf_query_proto;
+	case BPF_FUNC_ktime_get_coarse_ns:
+		return &bpf_ktime_get_coarse_ns_proto;
+	case BPF_FUNC_for_each_map_elem:
+		return &bpf_for_each_map_elem_proto;
 	default:
 		break;
 	}
@@ -722,6 +1027,32 @@ bpf_base_func_proto(enum bpf_func_id func_id)
 		return &bpf_per_cpu_ptr_proto;
 	case BPF_FUNC_this_cpu_ptr:
 		return &bpf_this_cpu_ptr_proto;
+	case BPF_FUNC_bprm_opts_set:
+		return &bpf_bprm_opts_set_proto;
+	case BPF_FUNC_btf_find_by_name_kind:
+		return &bpf_btf_find_by_name_kind_proto;
+	case BPF_FUNC_check_mtu:
+		return &bpf_check_mtu_proto;
+	case BPF_FUNC_get_attach_cookie:
+		return &bpf_get_attach_cookie_proto;
+	case BPF_FUNC_timer_init:
+		return &bpf_timer_init_proto;
+	case BPF_FUNC_timer_set_callback:
+		return &bpf_timer_set_callback_proto;
+	case BPF_FUNC_timer_start:
+		return &bpf_timer_start_proto;
+	case BPF_FUNC_timer_cancel:
+		return &bpf_timer_cancel_proto;
+	case BPF_FUNC_task_storage_get:
+		return &bpf_task_storage_get_proto;
+	case BPF_FUNC_task_storage_delete:
+		return &bpf_task_storage_delete_proto;
+	case BPF_FUNC_sock_from_file:
+		return &bpf_sock_from_file_proto;
+	case BPF_FUNC_sys_bpf:
+		return &bpf_sys_bpf_proto;
+	case BPF_FUNC_sys_close:
+		return &bpf_sys_close_proto;
 	default:
 		break;
 	}
@@ -746,6 +1077,16 @@ bpf_base_func_proto(enum bpf_func_id func_id)
 		       NULL : &bpf_probe_read_kernel_str_proto;
 	case BPF_FUNC_snprintf_btf:
 		return &bpf_snprintf_btf_proto;
+	case BPF_FUNC_get_current_task_btf:
+		return &bpf_get_current_task_btf_proto;
+	case BPF_FUNC_get_func_ip:
+		return &bpf_get_func_ip_proto;
+	case BPF_FUNC_ima_inode_hash:
+		return &bpf_ima_inode_hash_proto;
+	case BPF_FUNC_snprintf:
+		return &bpf_snprintf_proto;
+	case BPF_FUNC_task_pt_regs:
+		return &bpf_task_pt_regs_proto;
 	default:
 		return NULL;
 	}

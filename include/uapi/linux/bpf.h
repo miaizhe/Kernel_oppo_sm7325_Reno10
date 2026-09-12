@@ -3905,6 +3905,26 @@ union bpf_attr {
 	FN(per_cpu_ptr),		\
 	FN(this_cpu_ptr),		\
 	FN(redirect_peer),		\
+	FN(bprm_opts_set),		\
+	FN(btf_find_by_name_kind),	\
+	FN(check_mtu),			\
+	FN(for_each_map_elem),		\
+	FN(get_attach_cookie),		\
+	FN(get_current_task_btf),	\
+	FN(get_func_ip),		\
+	FN(ima_inode_hash),		\
+	FN(ktime_get_coarse_ns),	\
+	FN(snprintf),			\
+	FN(sock_from_file),		\
+	FN(sys_bpf),			\
+	FN(sys_close),			\
+	FN(task_pt_regs),		\
+	FN(task_storage_get),		\
+	FN(task_storage_delete),	\
+	FN(timer_init),			\
+	FN(timer_start),		\
+	FN(timer_set_callback),		\
+	FN(timer_cancel),		\
 	/* */
 
 /* integer value in 'imm' field of BPF_CALL instruction selects which helper
