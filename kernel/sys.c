@@ -1263,7 +1263,7 @@ SYSCALL_DEFINE1(newuname, struct new_utsname __user *, name)
 	 * and userspace feature selection unrelated to BPF.
 	 */
 	if (!strcmp(current->comm, "netbpfload")) {
-		strscpy(tmp.release, "5.15.0-android17-bpf-compat",
+		strscpy(tmp.release, "5.10.199-dsu-bpf-compat",
 			sizeof(tmp.release));
 	}
 	up_read(&uts_sem);
