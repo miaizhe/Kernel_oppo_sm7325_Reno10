@@ -1,4 +1,4 @@
-name: Build KernelSU-Next test Docker Kernel
+name: Build ReSukiSU Docker test-fixes Kernel
 
 on:
   workflow_dispatch:
@@ -28,6 +28,7 @@ jobs:
           repository: miaizhe/Kernel_oppo_sm7325_Reno10
           path: kernel/msm-5.4
           fetch-depth: 1
+          ref: test-fixes
 
       - name: Checkout Modules Source
         uses: actions/checkout@v6
@@ -55,16 +56,6 @@ jobs:
           BUILD_DATE=$(date +%Y%m%d)
           echo "BUILD_DATE=$BUILD_DATE" >> $GITHUB_ENV
 
-      - name: rekernel
-        run: |
-          cd kernel/msm-5.4
-          curl -LSs "https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Build_2nd/refs/heads/mainline/Patches/Rekernel/rekernel_patches.sh" -o rekernel_patches.sh
-          chmod +x rekernel_patches.sh
-          bash rekernel_patches.sh
-          mkdir -p drivers/rekernel
-          curl https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Build_2nd/refs/heads/mainline/Patches/Rekernel/rekernel_extra.patch -o rekernel_extra.patch
-          patch -p1 < rekernel_extra.patch || true
-          
       - name: Compile Kernel
         run: |
           export PATH="$(pwd)/compiler/clang-bin/bin:$PATH"
@@ -75,82 +66,12 @@ jobs:
           export ARCH="arm64"
           export SUBARCH="arm64"
           cd kernel/msm-5.4
-          echo "添加docker补丁中"
-          rm fs/overlayfs/util.c
-          curl -LSs "https://github.com/miaizhe/Kernel_oppo_sm7325_Reno10/releases/download/boot/util.c" -o fs/overlayfs/util.c
-          rm kernel/module.c
-          curl -LSs "https://github.com/miaizhe/Kernel_oppo_sm7325_Reno10/releases/download/boot/module.c" -o kernel/module.c
-          rm arch/arm64/configs/Reno10-Docker_defconfig
-          curl -LSs "https://github.com/miaizhe/Kernel_oppo_sm7325_Reno10/releases/download/boot/Reno10-Docker_defconfig" -o arch/arm64/configs/Reno10-Docker_defconfig
-          rm include/linux/sched/user.h
-          curl -LSs https://raw.githubusercontent.com/ravindu644/Droidspaces-OSS/refs/heads/main/Documentation/resources/kernel-patches/GKI/below-kernel-6.12/001.GKI-below-6.12-fix_sysvipc_kabi_3_4_5.patch -o 001.GKI-below-6.12-fix_sysvipc_kabi_3_4_5.patch
-          curl -LSs https://github.com/miaizhe/Kernel_oppo_sm7325_Reno10/releases/download/boot/user.h -o include/linux/sched/user.h
-          patch -p1 < 001.GKI-below-6.12-fix_sysvipc_kabi_3_4_5.patch
-          echo "添加docker补丁完成"
-          curl -LSs "https://raw.githubusercontent.com/rifsxd/KernelSU-Next/next/kernel/setup.sh" | bash -s stable
-          rm drivers/kernelsu/hook/arm64/patch_memory.c
-          curl -LSs "https://github.com/miaizhe/Kernel_oppo_sm7325_Reno10/releases/download/boot/patch_memory.c" -o drivers/kernelsu/hook/arm64/patch_memory.c
-          rm drivers/kernelsu/policy/app_profile.c
-          curl -LSs "https://github.com/miaizhe/Kernel_oppo_sm7325_Reno10/releases/download/boot/app_profile.c" -o drivers/kernelsu/policy/app_profile.c
-          rm fs/stat.c
-          curl -LSs "https://raw.githubusercontent.com/oppo-source/android_kernel_oppo_sm7325/refs/heads/oppo/sm7325_v_15.0.0_reno10/fs/stat.c" -o fs/stat.c
-          rm fs/read_write.c
-          curl -LSs "https://raw.githubusercontent.com/oppo-source/android_kernel_oppo_sm7325/refs/heads/oppo/sm7325_v_15.0.0_reno10/fs/read_write.c" -o fs/read_write.c
-          rm drivers/tty/pty.c
-          curl -LSs "https://raw.githubusercontent.com/oppo-source/android_kernel_oppo_sm7325/refs/heads/oppo/sm7325_v_15.0.0_reno10/drivers/tty/pty.c" -o drivers/tty/pty.c
-          rm drivers/input/input.c
-          curl -LSs "https://raw.githubusercontent.com/oppo-source/android_kernel_oppo_sm7325/refs/heads/oppo/sm7325_v_15.0.0_reno10/drivers/input/input.c" -o drivers/input/input.c
-          rm include/linux/compiler.h
-          curl -LSs "https://raw.githubusercontent.com/oppo-source/android_kernel_oppo_sm7325/refs/heads/oppo/sm7325_v_15.0.0_reno10/include/linux/compiler.h" -o include/linux/compiler.h
-          sed -i 's/<linux\/pgtable.h>/<asm\/pgtable.h>/g' drivers/kernelsu/feature/sucompat.c
-          find drivers/kernelsu/ -type f \( -name "*.c" -o -name "*.h" \) -exec sed -i 's/strncpy_from_user_nofault/strncpy_from_user/g' {} +
-          find drivers/kernelsu/ -type f \( -name "*.c" -o -name "*.h" \) -exec sed -i 's/copy_to_kernel_nofault/probe_kernel_write/g' {} +
-          find drivers/kernelsu/ -type f \( -name "*.c" -o -name "*.h" \) -exec sed -i 's/copy_from_kernel_nofault/probe_kernel_read/g' {} +
-          sed -i 's/error = security_inode_init_security_anon(inode, \&qname, context_inode);/error = 0;/g' drivers/kernelsu/infra/file_wrapper.c
-          sed -i 's/SECCOMP_ARCH_NATIVE_NR/450/g' drivers/kernelsu/infra/seccomp_cache.c
-          rm drivers/kernelsu/supercall/dispatch.c
-          curl -LSs "https://github.com/miaizhe/Kernel_oppo_sm7325_Reno10/releases/download/boot/dispatch.c" -o drivers/kernelsu/supercall/dispatch.c
-          rm drivers/kernelsu/supercall/supercall.c
-          curl -LSs "https://github.com/miaizhe/Kernel_oppo_sm7325_Reno10/releases/download/boot/supercall.c" -o drivers/kernelsu/supercall/supercall.c
-          echo "尝试修复fsnotify"
-          rm drivers/kernelsu/manager/pkg_observer.c
-          curl -LSs "https://github.com/miaizhe/Kernel_oppo_sm7325_Reno10/releases/download/boot/pkg_observer.c" -o drivers/kernelsu/manager/pkg_observer.c
-          echo "已尝试修复"
-          sed -i '2i #include <linux/sched/task.h>' drivers/kernelsu/policy/allowlist.c
-          sed -i 's/task_work_add(tsk, cb, TWA_RESUME)/task_work_add(tsk, cb, true)/g' drivers/kernelsu/policy/allowlist.c
-          sed -i 's/atomic_set(&current->seccomp.filter_count, 0);/\/\/ atomic_set(\&current->seccomp.filter_count, 0);/g' drivers/kernelsu/policy/app_profile.c
-          sed -i 's/copy_from_user_nofault/probe_user_read/g' drivers/kernelsu/runtime/ksud_integration.c
-          sed -i 's/copy_to_user_nofault/probe_user_write/g' drivers/kernelsu/runtime/ksud_integration.c
-          rm drivers/kernelsu/selinux/rules.c
-          curl -LSs "https://github.com/miaizhe/Kernel_oppo_sm7325_Reno10/releases/download/boot/rules.c" -o drivers/kernelsu/selinux/rules.c
-          rm drivers/kernelsu/selinux/sepolicy.c
-          curl -LSs "https://github.com/miaizhe/Kernel_oppo_sm7325_Reno10/releases/download/boot/sepolicy.c" -o drivers/kernelsu/selinux/sepolicy.c
-          sed -i 's/<linux\/minmax.h>/<linux\/kernel.h>/g' drivers/kernelsu/sulog/event.c
-          sed -i '2i #include <linux/sched/signal.h>\n#include <linux/sched/task.h>\n#include <linux/pid.h>' drivers/kernelsu/supercall/dispatch.c
-          sed -i 's/task_work_add(current, \&tw->cb, TWA_RESUME)/task_work_add(current, \&tw->cb, true)/g' drivers/kernelsu/supercall/supercall.c
-          rm drivers/kernelsu/feature/selinux_hide.c
-          curl -LSs "https://github.com/miaizhe/Kernel_oppo_sm7325_Reno10/releases/download/boot/selinux_hide.c" -o drivers/kernelsu/feature/selinux_hide.c
-          
-          make O=out CC="clang" LLVM=1 Reno10-Docker_defconfig
-          # ==== Enable namespaces for Droidspaces ====
+          rm -r KernelSU
+          curl -LSs "https://raw.githubusercontent.com/ReSukiSU/ReSukiSU/main/kernel/setup.sh" | bash
+          make O=out CC="clang" LLVM=1 Reno10-Docker_defconfig  
           ./scripts/config --file out/.config \
-            -d CONFIG_USER_NS \
-            -e CONFIG_PID_NS \
-            -e CONFIG_IPC_NS \
-            -e CONFIG_CHECKPOINT_RESTORE \
-            -e CONFIG_SYSVIPC \
-            -e CONFIG_KPROBES \
-            -e CONFIG_KSU_KPROBE_HOOKS \
-            -e CONFIG_KPROBE_EVENTS
-          # ==========================================
-          ./scripts/config --file out/.config --enable CONFIG_CGROUP_PIDS
-          ./scripts/config --file out/.config --enable CONFIG_CGROUP_IO
-          ./scripts/config --file out/.config --enable CONFIG_CPUSETS
-          ./scripts/config --file out/.config --enable CONFIG_MEMCG
-          ./scripts/config --file out/.config --enable CONFIG_DEVTMPFS
-          ./scripts/config --file out/.config --enable CONFIG_DEVTMPFS_MOUNT
-          ./scripts/config --file out/.config --enable CONFIG_OVERLAY_FS
-          ./scripts/config --file out/.config -m CONFIG_KSU
+            -d CONFIG_KSU_TRACEPOINT_HOOK \
+            -e CONFIG_KSU_MANUAL_HOOK
           make O=out CC="clang" LLVM=1 -j$(nproc)
       - name: Package with AnyKernel3
         run: |
@@ -164,14 +85,34 @@ jobs:
           cd AnyKernel3
           rm anykernel.sh
           wget https://github.com/miaizhe/Kernel_oppo_sm7325_Reno10/releases/download/boot/anykernel.sh
-          zip -r9 ../KernelSU-Next-Reno10-Docker-test-${{ env.BUILD_DATE }}.zip * -x .git* README.md *placeholder
+          zip -r9 ../ReSukiSU-Reno10-test-fixes-Docker-${{ env.BUILD_DATE }}.zip * -x .git* README.md *placeholder
+
+      - name: Pack WithoutTWRP Boot Image
+        run: |
+          pwd
+          mkdir -p boot_pack
+          cd boot_pack
+          wget https://raw.githubusercontent.com/miaizhe/magiskboot-linux/refs/heads/main/x86_64/magiskboot
+          chmod +x magiskboot
+          curl -fL "https://github.com/miaizhe/Kernel_oppo_sm7325_Reno10/releases/download/boot/boot_a.img" -o boot_origin.img
+          ./magiskboot unpack boot_origin.img
+          if [ ! -f "../kernel/msm-5.4/out/arch/arm64/boot/Image" ]; then
+            echo "错误：编译出的 Image 文件不存在，请检查编译步骤！"
+            exit 1
+          fi
+          cp ../kernel/msm-5.4/out/arch/arm64/boot/Image kernel
+          ./magiskboot repack boot_origin.img ../boot-ReSukiSU-Reno10-test-fixes-WithoutTWRP-Docker-${{ env.BUILD_DATE }}.img
+          pwd
+          cd ..
+          pwd
 
       - name: Upload Flashable Kernel
         uses: actions/upload-artifact@v6
         with:
-          name: ReSukiSU_Reno10_Docker.img
+          name: ReSukiSU_Reno10_Docker_test-fixes.img
           path: |
-            KernelSU-Next-Reno10-Docker-test-${{ env.BUILD_DATE }}.zip
+            boot-ReSukiSU-Reno10-test-fixes-WithoutTWRP-Docker-${{ env.BUILD_DATE }}.img
+            ReSukiSU-Reno10-test-fixes-Docker-${{ env.BUILD_DATE }}.zip
 
       - name: Upload Release
         uses: softprops/action-gh-release@v2
@@ -185,6 +126,7 @@ jobs:
             - 欢迎刷入芜夕wuxi的内核！祝你玩的愉快！
             - 文件：分为带SuSFS的和不带SukiSU的，zip为ak3包，img文件为打包好的镜像，Docker为带Docker的,test为测试版
           files: |
-              KernelSU-Next-Reno10-Docker-test-${{ env.BUILD_DATE }}.zip
+              ReSukiSU-Reno10-test-fixes-Docker-${{ env.BUILD_DATE }}.zip
+              boot-ReSukiSU-Reno10-test-fixes-WithoutTWRP-Docker-${{ env.BUILD_DATE }}.img
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
