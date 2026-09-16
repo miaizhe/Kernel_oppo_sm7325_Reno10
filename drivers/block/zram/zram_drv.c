@@ -50,7 +50,7 @@ static DEFINE_IDR(zram_index_idr);
 static DEFINE_MUTEX(zram_index_mutex);
 
 static int zram_major;
-static const char *default_compressor = "lzo-rle";
+static const char *default_compressor = "zstd";
 
 static unsigned int num_devices = ZRAM_TYPE_MAX;
 

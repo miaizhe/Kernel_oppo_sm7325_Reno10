@@ -54,16 +54,16 @@ struct hybridswapd_task {
 #define PGDAT_ITEM_DATA(pgdat) ((struct hybridswapd_task*)(pgdat)->android_oem_data1)
 #define PGDAT_ITEM(pgdat, item) (PGDAT_ITEM_DATA(pgdat)->item)
 
-#define HS_SWAP_ANON_REFAULT_THRESHOLD 22000
+#define HS_SWAP_ANON_REFAULT_THRESHOLD 15000
 #define ANON_REFAULT_SNAPSHOT_MIN_INTERVAL 200
 #define EMPTY_ROUND_SKIP_INTERNVAL 20
 #define MAX_SKIP_INTERVAL 1000
 #define EMPTY_ROUND_CHECK_THRESHOLD 10
-#define ZRAM_WM_RATIO 75
-#define COMPRESS_RATIO 30
+#define ZRAM_WM_RATIO 65
+#define COMPRESS_RATIO 35
 #define SWAPD_MAX_LEVEL_NUM 10
 #define SWAPD_DEFAULT_BIND_CPUS "0-3"
-#define MAX_RECLAIMIN_SZ (200llu << 20)
+#define MAX_RECLAIMIN_SZ (256llu << 20)
 #define page_to_kb(nr) (nr << (PAGE_SHIFT - 10))
 #define SWAPD_SHRINK_WINDOW (HZ * 10)
 #define SWAPD_SHRINK_SIZE_PER_WINDOW 1024
