@@ -529,6 +529,7 @@ struct sched_entity {
 	u64				vruntime;
 	s64				vlag;
 	u64				slice;
+	u64				vprot;
 
 	u64				nr_migrations;
 

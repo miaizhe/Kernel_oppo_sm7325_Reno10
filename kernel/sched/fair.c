@@ -721,6 +721,48 @@ int entity_eligible(struct cfs_rq *cfs_rq, struct sched_entity *se)
 	return avg >= entity_key(cfs_rq, se) * (s64)load;
 }
 
+/*
+ * EEVDF slice protection (from Linux 7.2 mainline):
+ *
+ * When a task is selected by pick_eevdf(), it gets a protection window
+ * (vprot) to prevent being immediately preempted by newly woken tasks.
+ * This prevents the "preemption storm" where a task keeps getting
+ * preempted before it can finish its slice.
+ */
+static inline bool protect_slice(struct sched_entity *se)
+{
+	return sched_feat(RUN_TO_PARITY) && se->vlag == se->deadline;
+}
+
+static inline void set_protect_slice(struct cfs_rq *cfs_rq,
+				     struct sched_entity *se)
+{
+	u64 slice = se->slice;
+
+	if (!sched_feat(RUN_TO_PARITY))
+		return;
+
+	/*
+	 * Set protection deadline: the entity is protected until its
+	 * deadline, giving it a chance to finish its slice.
+	 */
+	se->vprot = se->deadline;
+}
+
+static inline void update_protect_slice(struct cfs_rq *cfs_rq,
+					struct sched_entity *se)
+{
+	if (!sched_feat(RUN_TO_PARITY))
+		return;
+
+	/*
+	 * When new entities are added, we may need to reduce the protection
+	 * to ensure new tasks get a fair chance. Reduce protection to the
+	 * minimum of current protection and (vruntime + min_slice).
+	 */
+	se->vprot = min_vruntime(se->vprot, se->deadline);
+}
+
 static u64 __update_min_vruntime(struct cfs_rq *cfs_rq, u64 vruntime)
 {
 	u64 min_vruntime = cfs_rq->min_vruntime;
@@ -4680,6 +4722,11 @@ enqueue_entity(struct cfs_rq *cfs_rq, struct sched_entity *se, int flags)
 
 	if (flags & (ENQUEUE_WAKEUP | ENQUEUE_INITIAL))
 		place_entity(cfs_rq, se, flags);
+
+	/* Update slice protection for the current task when new entities arrive */
+	if (cfs_rq->curr && cfs_rq->curr != se)
+		update_protect_slice(cfs_rq, cfs_rq->curr);
+
 	/* Entity has migrated, no longer consider this task hot */
 	if (flags & ENQUEUE_MIGRATED)
 		se->exec_start = 0;
@@ -4808,6 +4855,9 @@ set_next_entity(struct cfs_rq *cfs_rq, struct sched_entity *se)
 
 	update_stats_curr_start(cfs_rq, se);
 	cfs_rq->curr = se;
+
+	/* Set slice protection for the newly selected entity */
+	set_protect_slice(cfs_rq, se);
 
 	if (schedstat_enabled() &&
 	    rq_of(cfs_rq)->cfs.load.weight >= 2*se->load.weight) {
@@ -8286,6 +8336,15 @@ static void check_preempt_wakeup(struct rq *rq, struct task_struct *p, int wake_
 		return;
 #endif
 #endif /* defined(OPLUS_FEATURE_SCHED_ASSIST) && defined(CONFIG_OPLUS_FEATURE_SCHED_ASSIST) */
+	/*
+	 * EEVDF slice protection: if the current task has active slice
+	 * protection (vprot), don't preempt it. This prevents preemption
+	 * storms where a task keeps getting preempted before finishing
+	 * its slice.
+	 */
+	if (protect_slice(se))
+		return;
+
 	if (wakeup_preempt_entity(se, pse) == 1) {
 		/*
 		 * Bias pick_next to pick the sched entity that is
