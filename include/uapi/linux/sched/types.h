@@ -10,6 +10,7 @@ struct sched_param {
 
 #define SCHED_ATTR_SIZE_VER0	48	/* sizeof first published struct */
 #define SCHED_ATTR_SIZE_VER1	56	/* add: util_{min,max} */
+#define SCHED_ATTR_SIZE_VER2	64	/* add: sched_latencynice */
 
 /*
  * Extended scheduling parameters data structure.
@@ -117,6 +118,9 @@ struct sched_attr {
 	/* Utilization hints */
 	__u32 sched_util_min;
 	__u32 sched_util_max;
+
+	/* EEVDF latency hints */
+	__s32 sched_latencynice;
 
 };
 

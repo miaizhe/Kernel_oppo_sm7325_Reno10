@@ -2974,6 +2974,7 @@ static void __sched_fork(unsigned long clone_flags, struct task_struct *p)
 	p->se.prev_sum_exec_runtime	= 0;
 	p->se.nr_migrations		= 0;
 	p->se.vruntime			= 0;
+	p->latency_nice			= 0;
 #ifdef CONFIG_SCHED_WALT
 	p->wts.last_sleep_ts		= 0;
 	p->wts.wake_up_idle		= false;
@@ -5114,8 +5115,11 @@ static void __setscheduler_params(struct task_struct *p,
 
 	if (dl_policy(policy))
 		__setparam_dl(p, attr);
-	else if (fair_policy(policy))
+	else if (fair_policy(policy)) {
 		p->static_prio = NICE_TO_PRIO(attr->sched_nice);
+		if (attr->sched_flags & SCHED_FLAG_LATENCY_NICE)
+			p->latency_nice = attr->sched_latencynice;
+	}
 
 	/*
 	 * __sched_setscheduler() ensures attr->sched_priority == 0 when
@@ -5553,11 +5557,19 @@ static int sched_copy_attr(struct sched_attr __user *uattr, struct sched_attr *a
 	    size < SCHED_ATTR_SIZE_VER1)
 		return -EINVAL;
 
+	if ((attr->sched_flags & SCHED_FLAG_LATENCY_NICE) &&
+	    size < SCHED_ATTR_SIZE_VER2)
+		return -EINVAL;
+
 	/*
 	 * XXX: Do we want to be lenient like existing syscalls; or do we want
 	 * to be strict and return an error on out-of-bounds values?
 	 */
 	attr->sched_nice = clamp(attr->sched_nice, MIN_NICE, MAX_NICE);
+
+	if (attr->sched_flags & SCHED_FLAG_LATENCY_NICE)
+		attr->sched_latencynice = clamp(attr->sched_latencynice,
+						-20, 19);
 
 	return 0;
 
@@ -5781,6 +5793,9 @@ SYSCALL_DEFINE4(sched_getattr, pid_t, pid, struct sched_attr __user *, uattr,
 		kattr.sched_priority = p->rt_priority;
 	else
 		kattr.sched_nice = task_nice(p);
+
+	if (fair_policy(p->policy))
+		kattr.sched_latencynice = p->latency_nice;
 
 #ifdef CONFIG_UCLAMP_TASK
 	kattr.sched_util_min = p->uclamp_req[UCLAMP_MIN].value;

@@ -108,6 +108,35 @@ static unsigned int normalized_sysctl_sched_latency	= 6000000ULL;
 unsigned int sysctl_sched_base_slice			= 750000ULL;
 
 /*
+ * Map latency_nice (-20..19) to a slice value.
+ * Lower latency_nice = shorter slice = earlier virtual deadline = lower latency.
+ * -20 (lowest latency) -> 125000ns (0.125ms)
+ *   0 (default)        -> 750000ns (0.75ms)
+ *  19 (highest latency) -> 3000000ns (3ms)
+ */
+static unsigned int sched_latency_nice_to_slice(int latency_nice)
+{
+	latency_nice = clamp(latency_nice, -20, 19);
+
+	/* Linear interpolation: slice = 125000 + (latency_nice + 20) * 73076 */
+	return 125000 + (latency_nice + 20) * 73076;
+}
+
+static unsigned int entity_slice(struct sched_entity *se)
+{
+	struct task_struct *p;
+
+	if (!entity_is_task(se))
+		return sysctl_sched_base_slice;
+
+	p = task_of(se);
+	if (p->latency_nice == 0)
+		return sysctl_sched_base_slice;
+
+	return sched_latency_nice_to_slice(p->latency_nice);
+}
+
+/*
  * The initial- and re-scaling of tunables is configurable
  *
  * Options are:
@@ -831,7 +860,7 @@ static struct sched_entity *__pick_eevdf(struct cfs_rq *cfs_rq)
 		curr = NULL;
 	best = curr;
 
-	if (sched_feat(RUN_TO_PARITY) && curr && curr->vlag == curr->deadline)
+	if (sched_feat(RUN_TO_PARITY) && curr && curr->vruntime == curr->deadline)
 		return curr;
 
 	while (node) {
@@ -1130,7 +1159,7 @@ static void update_deadline(struct cfs_rq *cfs_rq, struct sched_entity *se)
 	if ((s64)(se->vruntime - se->deadline) < 0)
 		return;
 
-	se->slice = sysctl_sched_base_slice;
+	se->slice = entity_slice(se);
 
 	se->deadline = se->vruntime + calc_delta_fair(se->slice, se);
 
@@ -4492,7 +4521,7 @@ place_entity(struct cfs_rq *cfs_rq, struct sched_entity *se, int flags)
 	u64 vslice, vruntime = avg_vruntime(cfs_rq);
 	s64 lag = 0;
 
-	se->slice = sysctl_sched_base_slice;
+	se->slice = entity_slice(se);
 	vslice = calc_delta_fair(se->slice, se);
 
 	if (sched_feat(PLACE_LAG) && cfs_rq->nr_running) {
@@ -4776,7 +4805,11 @@ check_preempt_tick(struct cfs_rq *cfs_rq, struct sched_entity *curr)
 	struct sched_entity *se;
 	s64 delta;
 
-	ideal_runtime = sched_slice(cfs_rq, curr);
+	/*
+	 * EEVDF: use the entity's virtual deadline for preemption.
+	 * The entity should stop when its vruntime exceeds its deadline.
+	 */
+	ideal_runtime = calc_delta_fair(curr->slice, curr);
 	trace_android_rvh_check_preempt_tick(current, &ideal_runtime);
 
 	delta_exec = curr->sum_exec_runtime - curr->prev_sum_exec_runtime;
@@ -8183,6 +8216,13 @@ wakeup_preempt_entity(struct sched_entity *curr, struct sched_entity *se)
 
 	if (vdiff <= 0)
 		return -1;
+
+	/*
+	 * EEVDF: prefer the entity with the earlier virtual deadline.
+	 * If the waker has an earlier deadline, it should preempt.
+	 */
+	if ((s64)(se->deadline - curr->deadline) < 0)
+		return 1;
 
 	gran = wakeup_gran(se);
 	if (vdiff > gran)
