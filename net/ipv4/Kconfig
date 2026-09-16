@@ -665,6 +665,18 @@ config TCP_CONG_BBR
 	bufferbloat, policers, or AQM schemes that do not provide a delay
 	signal. It requires the fq ("Fair Queue") pacing packet scheduler.
 
+config TCP_CONG_BBR2
+	tristate "BBR2 TCP"
+	default n
+	depends on TCP_CONG_ADVANCED
+	---help---
+
+	BBRv2 (Bottleneck Bandwidth and RTT, version 2) is a model-based
+	congestion control algorithm that aims for low queues, low loss,
+	and (bounded) Reno/CUBIC coexistence. It uses measurements of
+	bandwidth, RTT, and (if they occur) packet loss and/or DCTCP/L4S-style
+	ECN signals. It requires the fq ("Fair Queue") pacing packet scheduler.
+
 choice
 	prompt "Default TCP congestion control"
 	default DEFAULT_CUBIC
@@ -702,6 +714,9 @@ choice
 	config DEFAULT_BBR
 		bool "BBR" if TCP_CONG_BBR=y
 
+	config DEFAULT_BBR2
+		bool "BBR2" if TCP_CONG_BBR2=y
+
 	config DEFAULT_RENO
 		bool "Reno"
 endchoice
@@ -726,6 +741,7 @@ config DEFAULT_TCP_CONG
 	default "dctcp" if DEFAULT_DCTCP
 	default "cdg" if DEFAULT_CDG
 	default "bbr" if DEFAULT_BBR
+	default "bbr2" if DEFAULT_BBR2
 	default "cubic"
 
 config TCP_MD5SIG
