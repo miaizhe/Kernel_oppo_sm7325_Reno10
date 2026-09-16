@@ -1,4 +1,4 @@
-name: Build ReSukiSU Docker test-fixes Kernel
+name: Build ReSukiSU Docker LSE Kernel
 
 on:
   workflow_dispatch:
@@ -85,7 +85,7 @@ jobs:
           cd AnyKernel3
           rm anykernel.sh
           wget https://github.com/miaizhe/Kernel_oppo_sm7325_Reno10/releases/download/boot/anykernel.sh
-          zip -r9 ../ReSukiSU-Reno10-test-fixes-Docker-${{ env.BUILD_DATE }}.zip * -x .git* README.md *placeholder
+          zip -r9 ../ReSukiSU-Reno10-LSE-Docker-${{ env.BUILD_DATE }}.zip * -x .git* README.md *placeholder
 
       - name: Pack WithoutTWRP Boot Image
         run: |
@@ -101,7 +101,7 @@ jobs:
             exit 1
           fi
           cp ../kernel/msm-5.4/out/arch/arm64/boot/Image kernel
-          ./magiskboot repack boot_origin.img ../boot-ReSukiSU-Reno10-test-fixes-WithoutTWRP-Docker-${{ env.BUILD_DATE }}.img
+          ./magiskboot repack boot_origin.img ../boot-ReSukiSU-Reno10-LSE-WithoutTWRP-Docker-${{ env.BUILD_DATE }}.img
           pwd
           cd ..
           pwd
@@ -109,10 +109,10 @@ jobs:
       - name: Upload Flashable Kernel
         uses: actions/upload-artifact@v6
         with:
-          name: ReSukiSU_Reno10_Docker_test-fixes.img
+          name: ReSukiSU_Reno10_Docker_LSE.img
           path: |
-            boot-ReSukiSU-Reno10-test-fixes-WithoutTWRP-Docker-${{ env.BUILD_DATE }}.img
-            ReSukiSU-Reno10-test-fixes-Docker-${{ env.BUILD_DATE }}.zip
+            boot-ReSukiSU-Reno10-LSE-WithoutTWRP-Docker-${{ env.BUILD_DATE }}.img
+            ReSukiSU-Reno10-LSE-Docker-${{ env.BUILD_DATE }}.zip
 
       - name: Upload Release
         uses: softprops/action-gh-release@v2
@@ -126,7 +126,7 @@ jobs:
             - 欢迎刷入芜夕wuxi的内核！祝你玩的愉快！
             - 文件：分为带SuSFS的和不带SukiSU的，zip为ak3包，img文件为打包好的镜像，Docker为带Docker的,test为测试版
           files: |
-              ReSukiSU-Reno10-test-fixes-Docker-${{ env.BUILD_DATE }}.zip
-              boot-ReSukiSU-Reno10-test-fixes-WithoutTWRP-Docker-${{ env.BUILD_DATE }}.img
+              ReSukiSU-Reno10-LSE-Docker-${{ env.BUILD_DATE }}.zip
+              boot-ReSukiSU-Reno10-LSE-WithoutTWRP-Docker-${{ env.BUILD_DATE }}.img
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
