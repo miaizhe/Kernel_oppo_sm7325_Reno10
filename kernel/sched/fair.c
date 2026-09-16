@@ -860,7 +860,7 @@ static struct sched_entity *__pick_eevdf(struct cfs_rq *cfs_rq)
 		curr = NULL;
 	best = curr;
 
-	if (sched_feat(RUN_TO_PARITY) && curr && curr->vruntime == curr->deadline)
+	if (sched_feat(RUN_TO_PARITY) && curr && curr->vlag == curr->deadline)
 		return curr;
 
 	while (node) {
@@ -4771,15 +4771,6 @@ dequeue_entity(struct cfs_rq *cfs_rq, struct sched_entity *se, int flags)
 
 	update_entity_lag(cfs_rq, se);
 
-	/*
-	 * Normalize after update_curr(); which will also have moved
-	 * min_vruntime if @se is the one holding it back. But before doing
-	 * update_min_vruntime() again, which will discount @se's position and
-	 * can move min_vruntime forward still more.
-	 */
-	if (!(flags & DEQUEUE_SLEEP))
-		se->vruntime -= cfs_rq->min_vruntime;
-
 	/* return excess runtime on last dequeue */
 	return_cfs_rq_runtime(cfs_rq);
 
@@ -4793,60 +4784,6 @@ dequeue_entity(struct cfs_rq *cfs_rq, struct sched_entity *se, int flags)
 	 */
 	if ((flags & (DEQUEUE_SAVE | DEQUEUE_MOVE)) != DEQUEUE_SAVE)
 		update_min_vruntime(cfs_rq);
-}
-
-/*
- * Preempt the current task with a newly woken task if needed:
- */
-static void
-check_preempt_tick(struct cfs_rq *cfs_rq, struct sched_entity *curr)
-{
-	unsigned long ideal_runtime, delta_exec;
-	struct sched_entity *se;
-	s64 delta;
-
-	/*
-	 * EEVDF: use the entity's virtual deadline for preemption.
-	 * The entity should stop when its vruntime exceeds its deadline.
-	 */
-	ideal_runtime = calc_delta_fair(curr->slice, curr);
-	trace_android_rvh_check_preempt_tick(current, &ideal_runtime);
-
-	delta_exec = curr->sum_exec_runtime - curr->prev_sum_exec_runtime;
-#ifdef CONFIG_LOCKING_PROTECT
-	check_locking_protect_tick(curr);
-#endif
-	if (delta_exec > ideal_runtime) {
-		resched_curr(rq_of(cfs_rq));
-		/*
-		 * The current task ran long enough, ensure it doesn't get
-		 * re-elected due to buddy favours.
-		 */
-		clear_buddies(cfs_rq, curr);
-		return;
-	}
-
-#if defined(OPLUS_FEATURE_SCHED_ASSIST) && defined(CONFIG_OPLUS_FEATURE_SCHED_ASSIST)
-	if (is_heavy_load_task(current))
-		return;
-#endif /* defined(OPLUS_FEATURE_SCHED_ASSIST) && defined(CONFIG_OPLUS_FEATURE_SCHED_ASSIST) */
-
-	/*
-	 * Ensure that a task that missed wakeup preemption by a
-	 * narrow margin doesn't have to wait for a full slice.
-	 * This also mitigates buddy induced latencies under load.
-	 */
-	if (delta_exec < sysctl_sched_min_granularity)
-		return;
-
-	se = __pick_first_entity(cfs_rq);
-	delta = curr->vruntime - se->vruntime;
-
-	if (delta < 0)
-		return;
-
-	if (delta > ideal_runtime)
-		resched_curr(rq_of(cfs_rq));
 }
 
 static void
@@ -4964,8 +4901,6 @@ entity_tick(struct cfs_rq *cfs_rq, struct sched_entity *curr, int queued)
 		return;
 #endif
 
-	if (cfs_rq->nr_running > 1)
-		check_preempt_tick(cfs_rq, curr);
 }
 
 
@@ -5831,7 +5766,7 @@ static void hrtick_start_fair(struct rq *rq, struct task_struct *p)
 	SCHED_WARN_ON(task_rq(p) != rq);
 
 	if (rq->cfs.h_nr_running > 1) {
-		u64 slice = sched_slice(cfs_rq, se);
+		u64 slice = se->slice;
 		u64 ran = se->sum_exec_runtime - se->prev_sum_exec_runtime;
 		s64 delta = slice - ran;
 
@@ -5856,8 +5791,7 @@ static void hrtick_update(struct rq *rq)
 	if (!hrtick_enabled(rq) || curr->sched_class != &fair_sched_class)
 		return;
 
-	if (cfs_rq_of(&curr->se)->nr_running < sched_nr_latency)
-		hrtick_start_fair(rq, curr);
+	hrtick_start_fair(rq, curr);
 }
 #else /* !CONFIG_SCHED_HRTICK */
 static inline void
@@ -8212,20 +8146,14 @@ static unsigned long wakeup_gran(struct sched_entity *se)
 static int
 wakeup_preempt_entity(struct sched_entity *curr, struct sched_entity *se)
 {
-	s64 gran, vdiff = curr->vruntime - se->vruntime;
+	struct cfs_rq *cfs_rq = cfs_rq_of(curr);
+	struct sched_entity *best = pick_eevdf(cfs_rq);
 
-	if (vdiff <= 0)
-		return -1;
+	if (!best || best == curr)
+		return 0;
 
-	/*
-	 * EEVDF: prefer the entity with the earlier virtual deadline.
-	 * If the waker has an earlier deadline, it should preempt.
-	 */
-	if ((s64)(se->deadline - curr->deadline) < 0)
-		return 1;
-
-	gran = wakeup_gran(se);
-	if (vdiff > gran)
+	/* If the woken entity would be selected by pick_eevdf, preempt */
+	if (best == se)
 		return 1;
 
 	return 0;
