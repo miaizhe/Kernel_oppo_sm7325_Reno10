@@ -58,6 +58,12 @@
 #define LZ4_MEMORY_USAGE 14
 
 #define LZ4_MAX_INPUT_SIZE	0x7E000000 /* 2 113 929 216 bytes */
+
+/* LZ4 version defines */
+#define LZ4_VERSION_MAJOR    1
+#define LZ4_VERSION_MINOR   10
+#define LZ4_VERSION_RELEASE  0
+#define LZ4_VERSION_NUMBER (LZ4_VERSION_MAJOR *100*100 + LZ4_VERSION_MINOR *100 + LZ4_VERSION_RELEASE)
 #define LZ4_COMPRESSBOUND(isize)	(\
 	(unsigned int)(isize) > (unsigned int)LZ4_MAX_INPUT_SIZE \
 	? 0 \

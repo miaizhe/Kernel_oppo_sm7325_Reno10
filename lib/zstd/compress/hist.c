@@ -1,7 +1,7 @@
 /* ******************************************************************
  * hist : Histogram functions
  * part of Finite State Entropy project
- * Copyright (c) Yann Collet, Facebook, Inc.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  *  You can contact the author at :
  *  - FSE source repository : https://github.com/Cyan4973/FiniteStateEntropy
@@ -163,3 +163,19 @@ size_t HIST_count_wksp(unsigned* count, unsigned* maxSymbolValuePtr,
     return HIST_countFast_wksp(count, maxSymbolValuePtr, source, sourceSize, workSpace, workSpaceSize);
 }
 
+#ifndef ZSTD_NO_UNUSED_FUNCTIONS
+/* fast variant (unsafe : won't check if src contains values beyond count[] limit) */
+size_t HIST_countFast(unsigned* count, unsigned* maxSymbolValuePtr,
+                     const void* source, size_t sourceSize)
+{
+    unsigned tmpCounters[HIST_WKSP_SIZE_U32];
+    return HIST_countFast_wksp(count, maxSymbolValuePtr, source, sourceSize, tmpCounters, sizeof(tmpCounters));
+}
+
+size_t HIST_count(unsigned* count, unsigned* maxSymbolValuePtr,
+                 const void* src, size_t srcSize)
+{
+    unsigned tmpCounters[HIST_WKSP_SIZE_U32];
+    return HIST_count_wksp(count, maxSymbolValuePtr, src, srcSize, tmpCounters, sizeof(tmpCounters));
+}
+#endif
