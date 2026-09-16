@@ -173,6 +173,8 @@ struct kgsl_pwrctrl {
 	struct timer_list minbw_timer;
 	/** @minbw_timeout - Timeout for entering minimum bandwidth state */
 	u32 minbw_timeout;
+	/** @boost_pwrlevel - User boost power level (0=max perf, -1=disabled) */
+	int boost_pwrlevel;
 	/** @ddr_qos_devfreq: Devfreq device for setting DDR qos policy */
 	struct devfreq *ddr_qos_devfreq;
 	/** @time_in_pwrlevel: Each pwrlevel active duration in usec */

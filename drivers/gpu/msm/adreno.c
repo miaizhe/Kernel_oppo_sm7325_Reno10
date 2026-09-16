@@ -408,7 +408,7 @@ static void adreno_input_event(struct input_handle *handle, unsigned int type,
 		return;
 
 	if (gmu_core_isenabled(device)) {
-		schedule_work(&adreno_dev->input_work);
+		queue_work(adreno_dev->input_wq, &adreno_dev->input_work);
 		return;
 	}
 
@@ -428,7 +428,7 @@ static void adreno_input_event(struct input_handle *handle, unsigned int type,
 		kgsl_start_idle_timer(device);
 
 	} else if (device->state == KGSL_STATE_SLUMBER) {
-		schedule_work(&adreno_dev->input_work);
+		queue_work(adreno_dev->input_wq, &adreno_dev->input_work);
 	}
 }
 
@@ -1403,6 +1403,10 @@ static void adreno_setup_device(struct adreno_device *adreno_dev)
 
 	INIT_WORK(&adreno_dev->input_work, adreno_input_work);
 
+	/* Create high-priority workqueue for touch wakeup */
+	adreno_dev->input_wq = alloc_workqueue("gpu_input_wq",
+			WQ_HIGHPRI | WQ_UNBOUND | WQ_CPU_INTENSIVE, 0);
+
 	INIT_LIST_HEAD(&adreno_dev->active_list);
 	spin_lock_init(&adreno_dev->active_list_lock);
 
@@ -1649,6 +1653,13 @@ static void adreno_unbind(struct device *dev)
 	if (adreno_input_handler.private)
 		input_unregister_handler(&adreno_input_handler);
 #endif
+
+	/* Cleanup touch wakeup workqueue */
+	if (adreno_dev->input_wq) {
+		flush_workqueue(adreno_dev->input_wq);
+		destroy_workqueue(adreno_dev->input_wq);
+	}
+
 	adreno_sysfs_close(adreno_dev);
 
 	adreno_coresight_remove(adreno_dev);

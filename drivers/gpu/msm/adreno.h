@@ -518,6 +518,8 @@ struct adreno_device {
 	struct kgsl_memdesc *pwron_fixup;
 	unsigned int pwron_fixup_dwords;
 	struct work_struct input_work;
+	/** @input_wq: High-priority workqueue for touch wakeup */
+	struct workqueue_struct *input_wq;
 	struct adreno_busy_data busy_data;
 	unsigned int ram_cycles_lo;
 	unsigned int ram_cycles_lo_ch1_read;

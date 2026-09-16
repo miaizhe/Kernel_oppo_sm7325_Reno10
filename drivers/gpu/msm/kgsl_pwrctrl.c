@@ -1108,6 +1108,48 @@ static DEVICE_ATTR_RO(clock_mhz);
 static DEVICE_ATTR_RO(freq_table_mhz);
 static DEVICE_ATTR_RW(pwrscale);
 
+static ssize_t gpu_boost_show(struct device *dev,
+				struct device_attribute *attr, char *buf)
+{
+	struct kgsl_device *device = dev_get_drvdata(dev);
+	struct kgsl_pwrctrl *pwr = &device->pwrctrl;
+
+	return scnprintf(buf, PAGE_SIZE, "%d\n", pwr->boost_pwrlevel);
+}
+
+static ssize_t gpu_boost_store(struct device *dev,
+				struct device_attribute *attr,
+				const char *buf, size_t count)
+{
+	struct kgsl_device *device = dev_get_drvdata(dev);
+	struct kgsl_pwrctrl *pwr = &device->pwrctrl;
+	int val;
+	int ret;
+
+	ret = kstrtoint(buf, 0, &val);
+	if (ret)
+		return ret;
+
+	mutex_lock(&device->mutex);
+
+	if (val < 0) {
+		/* Disable boost */
+		pwr->boost_pwrlevel = -1;
+		pwr->max_pwrlevel = pwr->thermal_pwrlevel;
+	} else {
+		/* Enable boost: clamp to valid range */
+		val = clamp_t(int, val, 0, pwr->num_pwrlevels - 1);
+		pwr->boost_pwrlevel = val;
+		pwr->max_pwrlevel = val;
+	}
+
+	mutex_unlock(&device->mutex);
+
+	return count;
+}
+
+static DEVICE_ATTR_RW(gpu_boost);
+
 static const struct attribute *pwrctrl_attr_list[] = {
 	&dev_attr_gpuclk.attr,
 	&dev_attr_max_gpuclk.attr,
@@ -1136,6 +1178,7 @@ static const struct attribute *pwrctrl_attr_list[] = {
 	&dev_attr_freq_table_mhz.attr,
 	&dev_attr_temp.attr,
 	&dev_attr_pwrscale.attr,
+	&dev_attr_gpu_boost.attr,
 	NULL,
 };
 
@@ -1565,6 +1608,7 @@ int kgsl_pwrctrl_init(struct kgsl_device *device)
 	pwr->thermal_pwrlevel_floor = pwr->min_pwrlevel;
 
 	pwr->wakeup_maxpwrlevel = 0;
+	pwr->boost_pwrlevel = -1;
 
 	for (i = 0; i < pwr->num_pwrlevels; i++) {
 		freq = pwr->pwrlevels[i].gpu_freq;
