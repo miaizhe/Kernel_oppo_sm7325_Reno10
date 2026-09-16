@@ -108,35 +108,6 @@ static unsigned int normalized_sysctl_sched_latency	= 6000000ULL;
 unsigned int sysctl_sched_base_slice			= 750000ULL;
 
 /*
- * Map latency_nice (-20..19) to a slice value.
- * Lower latency_nice = shorter slice = earlier virtual deadline = lower latency.
- * -20 (lowest latency) -> 125000ns (0.125ms)
- *   0 (default)        -> 750000ns (0.75ms)
- *  19 (highest latency) -> 3000000ns (3ms)
- */
-static unsigned int sched_latency_nice_to_slice(int latency_nice)
-{
-	latency_nice = clamp(latency_nice, -20, 19);
-
-	/* Linear interpolation: slice = 125000 + (latency_nice + 20) * 73076 */
-	return 125000 + (latency_nice + 20) * 73076;
-}
-
-static unsigned int entity_slice(struct sched_entity *se)
-{
-	struct task_struct *p;
-
-	if (!entity_is_task(se))
-		return sysctl_sched_base_slice;
-
-	p = task_of(se);
-	if (p->latency_nice == 0)
-		return sysctl_sched_base_slice;
-
-	return sched_latency_nice_to_slice(p->latency_nice);
-}
-
-/*
  * The initial- and re-scaling of tunables is configurable
  *
  * Options are:
@@ -550,6 +521,35 @@ find_matching_se(struct sched_entity **se, struct sched_entity **pse)
 static inline struct task_struct *task_of(struct sched_entity *se)
 {
 	return container_of(se, struct task_struct, se);
+}
+
+/*
+ * Map latency_nice (-20..19) to a slice value.
+ * Lower latency_nice = shorter slice = earlier virtual deadline = lower latency.
+ * -20 (lowest latency) -> 125000ns (0.125ms)
+ *   0 (default)        -> 750000ns (0.75ms)
+ *  19 (highest latency) -> 3000000ns (3ms)
+ */
+static unsigned int sched_latency_nice_to_slice(int latency_nice)
+{
+	latency_nice = clamp(latency_nice, -20, 19);
+
+	/* Linear interpolation: slice = 125000 + (latency_nice + 20) * 73076 */
+	return 125000 + (latency_nice + 20) * 73076;
+}
+
+static unsigned int entity_slice(struct sched_entity *se)
+{
+	struct task_struct *p;
+
+	if (!entity_is_task(se))
+		return sysctl_sched_base_slice;
+
+	p = task_of(se);
+	if (p->latency_nice == 0)
+		return sysctl_sched_base_slice;
+
+	return sched_latency_nice_to_slice(p->latency_nice);
 }
 
 #define for_each_sched_entity(se) \
