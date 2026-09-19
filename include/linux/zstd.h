@@ -23,6 +23,7 @@
 /* ======   Dependency   ====== */
 #include <linux/types.h>
 #include <linux/zstd_errors.h>
+#define ZSTD_STATIC_LINKING_ONLY
 #include <linux/zstd_lib.h>
 
 /* ======   Helper Functions   ====== */
