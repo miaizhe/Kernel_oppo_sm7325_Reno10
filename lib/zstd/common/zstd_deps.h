@@ -4,8 +4,8 @@
  *
  * This source code is licensed under both the BSD-style license (found in the
  * LICENSE file in the root directory of this source tree) and the GPLv2 (found
- * in the COPYING file in the root directory of this source tree).
- * You may select, at your option, one of the above-listed licenses.
+ * in the COPYING file in the root directory of this source tree). You may
+ * select, at your option, one of the above-listed licenses.
  */
 
 /* This file provides common libc dependencies that zstd requires.
@@ -24,9 +24,9 @@
 #ifndef ZSTD_DEPS_COMMON
 #define ZSTD_DEPS_COMMON
 
-#include <limits.h>
-#include <stddef.h>
-#include <string.h>
+#include <linux/limits.h>
+#include <linux/stddef.h>
+#include <linux/string.h>
 
 #if defined(__GNUC__) && __GNUC__ >= 4
 # define ZSTD_memcpy(d,s,l) __builtin_memcpy((d),(s),(l))
@@ -49,11 +49,11 @@
 #ifndef ZSTD_DEPS_MALLOC
 #define ZSTD_DEPS_MALLOC
 
-#include <stdlib.h>
+#include <linux/slab.h>
 
-#define ZSTD_malloc(s) malloc(s)
-#define ZSTD_calloc(n,s) calloc((n), (s))
-#define ZSTD_free(p) free((p))
+#define ZSTD_malloc(s) kmalloc((s), GFP_KERNEL)
+#define ZSTD_calloc(n,s) kcalloc((n), (s), GFP_KERNEL)
+#define ZSTD_free(p) kfree(p)
 
 #endif /* ZSTD_DEPS_MALLOC */
 #endif /* ZSTD_DEPS_NEED_MALLOC */
@@ -79,7 +79,8 @@
 #ifndef ZSTD_DEPS_ASSERT
 #define ZSTD_DEPS_ASSERT
 
-#include <assert.h>
+#include <linux/bug.h>
+#define assert(x) BUG_ON(!(x))
 
 #endif /* ZSTD_DEPS_ASSERT */
 #endif /* ZSTD_DEPS_NEED_ASSERT */
@@ -91,8 +92,8 @@
 #ifndef ZSTD_DEPS_IO
 #define ZSTD_DEPS_IO
 
-#include <stdio.h>
-#define ZSTD_DEBUG_PRINT(...) fprintf(stderr, __VA_ARGS__)
+#include <linux/printk.h>
+#define ZSTD_DEBUG_PRINT(...) pr_debug(__VA_ARGS__)
 
 #endif /* ZSTD_DEPS_IO */
 #endif /* ZSTD_DEPS_NEED_IO */
@@ -105,7 +106,7 @@
 #ifndef ZSTD_DEPS_STDINT
 #define ZSTD_DEPS_STDINT
 
-#include <stdint.h>
+#include <linux/types.h>
 
 #endif /* ZSTD_DEPS_STDINT */
 #endif /* ZSTD_DEPS_NEED_STDINT */
