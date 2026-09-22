@@ -57,6 +57,9 @@ static unsigned int lut_max_entries = LUT_MAX_ENTRIES;
 static bool accumulative_counter;
 static bool perf_lock_support;
 
+#define GOLD_CLUSTER_MAX_FREQ  2600000  /* 2.6GHz hard limit for Gold cluster */
+static bool gold_freq_limited;
+
 struct cpufreq_qcom {
 	struct cpufreq_frequency_table *table;
 	void __iomem *base;
@@ -350,6 +353,27 @@ static int qcom_cpufreq_hw_cpu_init(struct cpufreq_policy *policy)
 		c->freq_limit_attr.attr.mode = 0444;
 		c->dcvsh_freq_limit = U32_MAX;
 		device_create_file(cpu_dev, &c->freq_limit_attr);
+	}
+
+	if (!gold_freq_limited &&
+	    cpumask_test_cpu(policy->cpu, policy->related_cpus) &&
+	    cpumask_first(policy->related_cpus) == 4) {
+		struct freq_qos_request *qos_req;
+
+		qos_req = kzalloc(sizeof(*qos_req), GFP_KERNEL);
+		if (qos_req) {
+			ret = freq_qos_add_request(&policy->constraints,
+						   qos_req, FREQ_QOS_MAX,
+						   GOLD_CLUSTER_MAX_FREQ);
+			if (ret < 0) {
+				pr_err("Gold cluster freq QoS failed: %d\n", ret);
+				kfree(qos_req);
+			} else {
+				gold_freq_limited = true;
+				pr_info("Gold cluster max freq limited to %u kHz\n",
+					GOLD_CLUSTER_MAX_FREQ);
+			}
+		}
 	}
 
 	return 0;

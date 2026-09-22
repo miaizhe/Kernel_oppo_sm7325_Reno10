@@ -657,7 +657,7 @@ TRACE_EVENT(sched_blocked_reason,
 		__field( void*, caller	)
 		__field( bool, io_wait	)
 		#if defined(OPLUS_FEATURE_TASK_CPUSTATS) && defined(CONFIG_OPLUS_CTP)
-		__array( unsigned long, backtrace, 4)
+		__array( void *, backtrace, 4)
 		#endif /* defined(OPLUS_FEATURE_TASK_CPUSTATS) && defined(CONFIG_OPLUS_CTP) */
 	),
 
