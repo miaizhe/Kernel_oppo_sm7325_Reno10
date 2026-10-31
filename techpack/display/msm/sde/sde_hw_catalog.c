@@ -4874,6 +4874,7 @@ static int _sde_hardware_pre_caps(struct sde_mdss_cfg *sde_cfg, uint32_t hw_rev)
 	} else if (IS_YUPIK_TARGET(hw_rev)) {
 		sde_cfg->has_cwb_support = true;
 		sde_cfg->has_cwb_crop = true;
+		sde_cfg->has_wb_ubwc = true;
 		sde_cfg->has_qsync = true;
 		sde_cfg->perf.min_prefill_lines = 40;
 		sde_cfg->vbif_qos_nlvl = 8;
