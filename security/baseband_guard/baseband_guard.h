@@ -16,9 +16,13 @@ static const char * const allowlist_names[] = {
 	"boot", "init_boot",
 	"vendor_boot", "vendor_kernel_boot",
 #endif
-	"dtbo",
+	"dtbo", “super", "my_bigball", "my_carrier",
 	"userdata", "cache", "metadata", "misc",
 	"vbmeta", "vbmeta_system", "vbmeta_vendor",
+	"my_company", "my_engineering", "my_heytap",
+	"my_manifest", "my_preload", "my_product",
+	"my_region", "my_stock", "odm",
+	"vendor", "splash_odm",
 #ifndef CONFIG_BBG_BLOCK_RECOVERY
 	"recovery"
 #endif
